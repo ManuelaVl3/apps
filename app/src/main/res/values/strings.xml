@@ -1,0 +1,69 @@
+<resources>
+    <string name="app_name">app</string>
+    
+    <!-- Common reusable strings -->
+    <string name="welcome">Bienvenid@👋</string>
+    <string name="email">Email</string>
+    <string name="password">Contraseña</string>
+    <string name="name">Nombre</string>
+    <string name="city">Ciudad</string>
+    <string name="login">Iniciar sesión</string>
+    <string name="register">Registrarme</string>
+    <string name="show_password">Mostrar contraseña</string>
+    <string name="hide_password">Ocultar contraseña</string>
+    <string name="invalid_email">Ingresa un correo válido</string>
+    <string name="password_too_short">La contraseña debe tener al menos 10 caracteres</string>
+    <string name="password_no_special">La contraseña debe contener al menos 1 carácter especial</string>
+    <string name="name_invalid">El nombre solo puede contener letras</string>
+    <string name="city_invalid">La ciudad solo puede contener letras</string>
+    <string name="logo_description">Logo de la aplicación</string>
+    
+    <!-- DropdownMenu component strings -->
+    <string name="valid_option">Opción válida</string>
+    <string name="invalid_option">Opción inválida</string>
+    <string name="open_menu">Abrir menú</string>
+    <string name="close_menu">Cerrar menú</string>
+    
+    <!-- LoginForm specific strings -->
+    <string name="login_register_link">Quiero registrarme</string>
+    <string name="login_forgot_password">Olvidé mi contraseña 🥺</string>
+    <string name="login_success">Inicio de sesión exitoso</string>
+    <string name="login_error">Email o contraseña incorrectos</string>
+    
+    <!-- MainPage specific strings -->
+    <string name="main_subtitle">Descubre los mejores lugares cerca de ti</string>
+    
+    <!-- RegisterForm specific strings -->
+    <string name="register_welcome">Nos emociona que hagas parte de</string>
+    <string name="register_brand">UniLocal</string>
+    <string name="register_subtitle">Sólo debes añadir tus datos</string>
+    <string name="register_already_registered">Ya estoy registrado</string>
+    <string name="register_success">¡Registro exitoso! Bienvenido a UniLocal</string>
+    
+    <!-- EditProfile specific strings -->
+    <string name="edit_welcome">¡Bienvenido!</string>
+    <string name="edit_my_profile">Mi perfil</string>
+    <string name="edit_save_changes">Guardar Cambios</string>
+    <string name="edit_back">Regresar</string>
+    <string name="edit_name">Editar nombre</string>
+    <string name="edit_save_name">Guardar nombre</string>
+    <string name="edit_city">Editar ciudad</string>
+    <string name="edit_save_city">Guardar ciudad</string>
+    <string name="edit_cancel">Cancelar</string>
+    <string name="edit_save">Guardar</string>
+    <string name="edit_save_success">¡Información actualizada exitosamente!</string>
+    <string name="edit_logout">Cerrar sesión</string>
+    
+    <!-- CreateForm specific strings -->
+    <string name="create_form_title">Crear nuevo lugar</string>
+    <string name="create_place_name">Nombre del lugar</string>
+    <string name="create_description">Descripción</string>
+    <string name="create_opening_hours">Horario de atención</string>
+    <string name="create_contact_phone">Teléfono de contacto</string>
+    <string name="create_address">Dirección</string>
+    <string name="create_add_image">Añade una imagen destacada del lugar</string>
+    <string name="create_add_image_description">Añadir imagen</string>
+    <string name="create_category">Categoría</string>
+    <string name="create_save">Guardar</string>
+    <string name="back">Atrás</string>
+</resources>
