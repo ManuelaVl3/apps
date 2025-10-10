@@ -35,6 +35,10 @@ fun DropdownMenu(
 ) {
     var expanded by rememberSaveable { mutableStateOf(false) }
     var selectedItem by rememberSaveable { mutableStateOf(value) }
+    
+    LaunchedEffect(value) {
+        selectedItem = value
+    }
 
     fun isValidOption(option: String): Boolean {
         return option.isNotEmpty() && options.contains(option)

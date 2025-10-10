@@ -1,4 +1,4 @@
-package com.example.app.ui.screens.user
+package com.example.app.ui.screens.user.tabs
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -13,9 +13,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.app.R
 import com.example.app.ui.theme.AppTheme
+import com.example.app.ui.theme.MontserratFamily
 
 @Composable
-fun MyPlaces() {
+fun Search() {
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
@@ -28,20 +29,22 @@ fun MyPlaces() {
             verticalArrangement = Arrangement.Center
         ) {
             Text(
-                text = "Mis Lugares",
+                text = "Búsqueda",
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onBackground,
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
+                fontFamily = MontserratFamily
             )
             
             Spacer(Modifier.height(16.dp))
             
             Text(
-                text = "Aquí verás tus lugares guardados",
+                text = "Busca lugares cerca de ti",
                 fontSize = 16.sp,
                 color = MaterialTheme.colorScheme.onBackground,
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
+                fontFamily = MontserratFamily
             )
         }
     }
@@ -49,8 +52,8 @@ fun MyPlaces() {
 
 @Preview(showBackground = true)
 @Composable
-private fun MyPlacesPreview() {
+private fun SearchPreview() {
     AppTheme {
-        MyPlaces()
+        Search()
     }
 }

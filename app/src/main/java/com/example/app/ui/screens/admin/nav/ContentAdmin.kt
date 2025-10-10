@@ -32,6 +32,7 @@ import com.example.app.R
 fun ContentAdmin(
     padding: PaddingValues,
     navController: NavHostController,
+    user: com.example.app.model.User?,
     onLogout: () -> Unit = {}
 ) {
     NavHost(
@@ -53,6 +54,9 @@ fun ContentAdmin(
         
         composable<RouteTabAdmin.Profile> {
             EditProfile(
+                userName = user?.name ?: "Administrador",
+                userUsername = user?.username ?: "",
+                userCity = user?.city ?: "Armenia",
                 onLogout = onLogout
             )
         }

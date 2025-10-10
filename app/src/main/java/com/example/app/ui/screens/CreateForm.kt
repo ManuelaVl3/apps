@@ -137,7 +137,7 @@ fun CreateForm(
             )
 
             OutlinedCard(
-                onClick = { /* TODO: Implementar selección de imagen */ },
+                onClick = {},
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
                 colors = CardDefaults.outlinedCardColors(

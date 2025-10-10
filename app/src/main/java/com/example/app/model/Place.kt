@@ -9,6 +9,8 @@ data class Place(
     val type: PlaceType,
     val schedules: List<Schedule>,
     val location: Location,
-    val address: String
+    val address: String,
+    val createBy: String,
+    val rating: Double = (1..5).random().toDouble()
 ) {
 }

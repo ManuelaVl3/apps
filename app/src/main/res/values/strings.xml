@@ -84,10 +84,12 @@
 
     <!-- BottomBar specific strings -->
     <string name="home">Inicio</string>
+    <string name="search">Búsqueda</string>
     <string name="my_places">Mis lugares</string>
     <string name="favorites">Favoritos</string>
     <string name="friends">Amigos</string>
     <string name="profile">Perfil</string>
+    <string name="no_places_saved">No tienes lugares guardados aún</string>
     
     <!-- Admin BottomBar specific strings -->
     <string name="history">Historial</string>

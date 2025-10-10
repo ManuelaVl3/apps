@@ -4,17 +4,20 @@ import kotlinx.serialization.Serializable
 
 sealed class RouteTab {
     @Serializable
-    data object Home : RouteTab()
+    data object Map : RouteTab()
 
     @Serializable
-    data object MyPlaces : RouteTab()
+    data object Search : RouteTab()
 
     @Serializable
-    data object Favorites : RouteTab()
-
-    @Serializable
-    data object Friends : RouteTab()
+    data object Places : RouteTab()
 
     @Serializable
     data object Profile : RouteTab()
+    
+    @Serializable
+    data class PlaceDetail(val placeId: String) : RouteTab()
+    
+    @Serializable
+    data object CreatePlace : RouteTab()
 }

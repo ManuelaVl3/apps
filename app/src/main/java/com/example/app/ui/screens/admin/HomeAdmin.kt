@@ -19,14 +19,19 @@ import com.example.app.ui.theme.OrangeDeep
 import com.example.app.ui.theme.MontserratFamily
 import com.example.app.ui.screens.admin.nav.ContentAdmin
 import com.example.app.ui.screens.admin.bottombar.BottomBarAdmin
+import com.example.app.viewmodel.UsersViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeAdmin(
+    userId: String = "3",
     onBack: () -> Unit = {},
     onLogout: () -> Unit = {}
 ) {
     val navController = rememberNavController()
+    val usersViewModel = remember { UsersViewModel() }
+    
+    val user = usersViewModel.findByUserId(userId)
     
     Scaffold(
         topBar = {
@@ -53,6 +58,7 @@ fun HomeAdmin(
         ContentAdmin(
             padding = paddingValues,
             navController = navController,
+            user = user,
             onLogout = onLogout
         )
     }

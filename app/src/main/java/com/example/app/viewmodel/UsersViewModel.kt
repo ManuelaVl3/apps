@@ -24,11 +24,10 @@ class UsersViewModel: ViewModel() {
                 "1",
                 "Manuela",
                 "Manuela_Vl3",
-                "manuelav@email.com",
-                "1234567890-",
+                "manuela@email.com",
+                "1234567890*",
                 "Armenia",
-                Role.USER,
-
+                Role.USER
             ),
 
             User(
@@ -36,7 +35,7 @@ class UsersViewModel: ViewModel() {
                 "Pascal",
                 "Pascalito2511",
                 "pascal@email.com",
-                "1234567890-",
+                "12345678",
                 "Medellín",
                 Role.USER,
 
@@ -44,14 +43,13 @@ class UsersViewModel: ViewModel() {
 
             User(
                 "3",
-                "Admin",
-                "Admin",
-                "admin@email.com",
-                "1234567890-",
-                "Cartagena",
-                Role.ADMIN,
-
-                )
+                "Moderador",
+                "Moderador_Admin",
+                "moderador@mod.com",
+                "0987654321!",
+                "Armenia",
+                Role.ADMIN
+            )
         )
     }
 
@@ -60,6 +58,10 @@ class UsersViewModel: ViewModel() {
     }
 
     fun findById(userId: String): User?{
+        return _users.value.find { it.userId == userId }
+    }
+    
+    fun findByUserId(userId: String): User?{
         return _users.value.find { it.userId == userId }
     }
 
@@ -86,7 +88,6 @@ class UsersViewModel: ViewModel() {
                 name = name,
                 username = username,
                 city = city
-                // email y password se mantienen sin cambios
             )
             _users.value = currentUsers
             return true

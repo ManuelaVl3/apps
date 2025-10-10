@@ -2,11 +2,10 @@ package com.example.app.ui.screens.user.bottombar
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.People
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -27,10 +26,9 @@ import com.example.app.ui.theme.OrangeDeep
 import com.example.app.ui.screens.user.nav.RouteTab
 
 enum class Destination(val titleResId: Int, val icon: ImageVector, val route: RouteTab) {
-    Home(R.string.home, Icons.Default.Home, RouteTab.Home),
-    MyPlaces(R.string.my_places, Icons.Default.LocationOn, RouteTab.MyPlaces),
-    Favorites(R.string.favorites, Icons.Default.Favorite, RouteTab.Favorites),
-    Friends(R.string.friends, Icons.Default.People, RouteTab.Friends),
+    Map(R.string.home, Icons.Default.Home, RouteTab.Map),
+    Search(R.string.search, Icons.Default.Search, RouteTab.Search),
+    Places(R.string.my_places, Icons.Default.LocationOn, RouteTab.Places),
     Profile(R.string.profile, Icons.Default.Person, RouteTab.Profile)
 }
 
