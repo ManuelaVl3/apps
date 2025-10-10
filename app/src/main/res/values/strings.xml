@@ -48,12 +48,19 @@
     <string name="edit_back">Regresar</string>
     <string name="edit_name">Editar nombre</string>
     <string name="edit_save_name">Guardar nombre</string>
+    <string name="edit_username">Editar usuario</string>
+    <string name="edit_save_username">Guardar usuario</string>
+    <string name="edit_email">Editar email</string>
+    <string name="edit_save_email">Guardar email</string>
+    <string name="edit_password">Editar contraseña</string>
+    <string name="edit_save_password">Guardar contraseña</string>
     <string name="edit_city">Editar ciudad</string>
     <string name="edit_save_city">Guardar ciudad</string>
     <string name="edit_cancel">Cancelar</string>
     <string name="edit_save">Guardar</string>
     <string name="edit_save_success">¡Información actualizada exitosamente!</string>
     <string name="edit_logout">Cerrar sesión</string>
+    <string name="username">Usuario</string>
     
     <!-- CreateForm specific strings -->
     <string name="create_form_title">Crear nuevo lugar</string>

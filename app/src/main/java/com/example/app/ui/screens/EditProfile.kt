@@ -29,12 +29,18 @@ import com.example.app.ui.theme.Peach
 @Composable
 fun EditProfile(
     userName: String = "Manuela",
+    userUsername: String = "Manuela_Vl3",
+    userEmail: String = "manuelav@email.com",
+    userPassword: String = "1234567890-",
     userCity: String = "Armenia",
     onLogout: () -> Unit = {}
 ) {
     var name by rememberSaveable { mutableStateOf(userName) }
+    var username by rememberSaveable { mutableStateOf(userUsername) }
     var city by rememberSaveable { mutableStateOf(userCity) }
+    
     var isEditingName by rememberSaveable { mutableStateOf(false) }
+    var isEditingUsername by rememberSaveable { mutableStateOf(false) }
     var isEditingCity by rememberSaveable { mutableStateOf(false) }
     
     val snackbarHostState = remember { SnackbarHostState() }
@@ -118,6 +124,40 @@ fun EditProfile(
             
             Spacer(Modifier.height(20.dp))
             
+            // Username Field
+            OutlinedTextField(
+                value = username,
+                onValueChange = { username = it },
+                label = { 
+                    Text(
+                        text = stringResource(R.string.username),
+                        fontFamily = MontserratFamily
+                    ) 
+                },
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = if (isEditingUsername) OrangeDeep else Orange,
+                    unfocusedBorderColor = if (isEditingUsername) OrangeDeep else Orange.copy(alpha = 0.6f)
+                ),
+                enabled = isEditingUsername,
+                singleLine = true,
+                trailingIcon = {
+                    IconButton(
+                        onClick = { isEditingUsername = !isEditingUsername }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.ModeEdit,
+                            contentDescription = if (isEditingUsername) stringResource(R.string.edit_save_username) else stringResource(R.string.edit_username),
+                            tint = Orange,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
+                }
+            )
+            
+            Spacer(Modifier.height(20.dp))
+            
             DropdownMenu(
                 value = city,
                 onValueChange = { city = it },
@@ -142,7 +182,7 @@ fun EditProfile(
                 modifier = Modifier.fillMaxWidth()
             )
             
-            if (isEditingName || isEditingCity) {
+            if (isEditingName || isEditingUsername || isEditingCity) {
                 Spacer(Modifier.height(20.dp))
                 
                 Row(
@@ -152,8 +192,10 @@ fun EditProfile(
                     Button(
                         onClick = {
                             isEditingName = false
+                            isEditingUsername = false
                             isEditingCity = false
                             name = userName
+                            username = userUsername
                             city = userCity
                         },
                         modifier = Modifier
@@ -177,6 +219,7 @@ fun EditProfile(
                         onClick = {
                             scope.launch {
                                 isEditingName = false
+                                isEditingUsername = false
                                 isEditingCity = false
                                 snackbarHostState.showSnackbar(successMessage)
                             }
