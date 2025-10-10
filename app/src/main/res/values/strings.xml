@@ -81,4 +81,17 @@
     <string name="favorites">Favoritos</string>
     <string name="friends">Amigos</string>
     <string name="profile">Perfil</string>
+    
+    <!-- Admin BottomBar specific strings -->
+    <string name="history">Historial</string>
+    <string name="authorize">Autorizar</string>
+    
+    <!-- Admin specific strings -->
+    <string name="admin_panel_title">Panel Admin</string>
+    <string name="admin_panel_main">Panel de Administración</string>
+    <string name="admin_welcome">Bienvenido, Administrador</string>
+    <string name="admin_history_title">Historial de Actividades</string>
+    <string name="admin_history_description">Aquí se mostrará el historial de actividades administrativas</string>
+    <string name="admin_authorize_title">Autorizar Solicitudes</string>
+    <string name="admin_authorize_description">Aquí se mostrarán las solicitudes pendientes de autorización</string>
 </resources>

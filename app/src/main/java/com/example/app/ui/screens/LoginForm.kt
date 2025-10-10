@@ -32,7 +32,8 @@ import com.example.app.ui.components.InputText
 @Composable
 fun LoginForm(
     onRegister: () -> Unit = {},
-    onLoginSuccess: () -> Unit = {}
+    onLoginSuccess: () -> Unit = {},
+    onAdminLoginSuccess: () -> Unit = {}
 ) {
     val peachBorder = Color(0xFFFFCCBC)
 
@@ -125,6 +126,10 @@ fun LoginForm(
                             //snackbarHostState.showSnackbar(successMessage)
                             delay(500)
                             onLoginSuccess()
+                        }else if(email == "moderador@mod.com" && password == "0987654321!"){
+                            //snackbarHostState.showSnackbar(successMessage)
+                            delay(500)
+                            onAdminLoginSuccess()
                         }else{
                             snackbarHostState.showSnackbar(errorMessage)
                         }

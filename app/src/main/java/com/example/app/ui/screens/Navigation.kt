@@ -29,7 +29,8 @@ fun Navigation() {
         composable<RouteScreen.Login> {
             LoginForm(
                 onRegister = { navController.navigate(RouteScreen.Register) },
-                onLoginSuccess = { navController.navigate(RouteScreen.HomeUser) }
+                onLoginSuccess = { navController.navigate(RouteScreen.HomeUser) },
+                onAdminLoginSuccess = { navController.navigate(RouteScreen.HomeAdmin) }
             )
         }
         
@@ -42,11 +43,12 @@ fun Navigation() {
         
         composable<RouteScreen.HomeUser> {
             HomeUser(
-                onNavigateToMyPlaces = { navController.navigate(RouteScreen.MyPlaces) },
-                onNavigateToFavorites = { navController.navigate(RouteScreen.Favorites) },
-                onNavigateToFriends = { navController.navigate(RouteScreen.Friends) },
-                onNavigateToProfile = { navController.navigate(RouteScreen.EditProfile) },
                 onBack = { 
+                    navController.navigate(RouteScreen.Home) {
+                        popUpTo(RouteScreen.Home) { inclusive = true }
+                    }
+                },
+                onLogout = {
                     navController.navigate(RouteScreen.Home) {
                         popUpTo(RouteScreen.Home) { inclusive = true }
                     }
@@ -68,7 +70,22 @@ fun Navigation() {
         
         composable<RouteScreen.EditProfile> {
             EditProfile(
-                onLogout = { 
+                onLogout = {
+                    navController.navigate(RouteScreen.Home) {
+                        popUpTo(RouteScreen.Home) { inclusive = true }
+                    }
+                }
+            )
+        }
+        
+        composable<RouteScreen.HomeAdmin> {
+            HomeAdmin(
+                onBack = { 
+                    navController.navigate(RouteScreen.Home) {
+                        popUpTo(RouteScreen.Home) { inclusive = true }
+                    }
+                },
+                onLogout = {
                     navController.navigate(RouteScreen.Home) {
                         popUpTo(RouteScreen.Home) { inclusive = true }
                     }

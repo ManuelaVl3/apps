@@ -26,4 +26,7 @@ sealed class RouteScreen {
     
     @Serializable
     data object EditProfile : RouteScreen()
+
+    @Serializable
+    data object HomeAdmin : RouteScreen()
 }
