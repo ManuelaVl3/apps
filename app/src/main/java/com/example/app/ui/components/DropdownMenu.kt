@@ -11,11 +11,9 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import android.util.Log
 import com.example.app.R
 import com.example.app.ui.theme.ErrorColor
 import com.example.app.ui.theme.Orange
@@ -37,8 +35,7 @@ fun DropdownMenu(
 ) {
     var expanded by rememberSaveable { mutableStateOf(false) }
     var selectedItem by rememberSaveable { mutableStateOf(value) }
-    val peachBorder = Color(0xFFFFCCBC)
-    
+
     fun isValidOption(option: String): Boolean {
         return option.isNotEmpty() && options.contains(option)
     }
@@ -51,8 +48,6 @@ fun DropdownMenu(
         OutlinedTextField(
             value = selectedItem,
             onValueChange = { newValue ->
-                Log.d("DropdownMenu", "onValueChange called with: '$newValue'")
-                Log.d("DropdownMenu", "Previous selectedItem was: '$selectedItem'")
                 selectedItem = newValue
             },
             label = { Text(label) },
@@ -115,14 +110,9 @@ fun DropdownMenu(
                 DropdownMenuItem(
                     text = { Text(option) },
                     onClick = {
-                        Log.d("DropdownMenu", "Item clicked: '$option'")
-                        Log.d("DropdownMenu", "Updating selectedItem to: '$option'")
                         selectedItem = option
                         onSelectionChange(option)
                         expanded = false
-                        Log.d("DropdownMenu", "Dropdown closed - selectedItem: '$selectedItem'")
-                        Log.d("DropdownMenu", "Called onSelectionChange with: '$option'")
-                        Log.d("DropdownMenu", "NO calling onValueChange yet")
                     }
                 )
             }

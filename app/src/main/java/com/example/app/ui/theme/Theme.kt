@@ -6,11 +6,9 @@ import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.sp
 import com.example.app.R
 
 val MontserratFamily = FontFamily(
@@ -34,13 +32,21 @@ val TextLightOnDark = Color(0xFFF5F5F5)
 private val DarkColorScheme = darkColorScheme(
     primary = OrangeDeep,
     secondary = Orange,
-    tertiary = Peach
+    tertiary = Peach,
+    background = BgDark,
+    surface = SurfaceDark,
+    onBackground = TextLightOnDark,
+    onSurface = TextLightOnDark
 )
 
 private val LightColorScheme = lightColorScheme(
     primary = OrangeDeep,
     secondary = Orange,
-    tertiary = Peach
+    tertiary = Peach,
+    background = BgLight,
+    surface = SurfaceLight,
+    onBackground = TextDark,
+    onSurface = TextDark
 )
 
 @Composable

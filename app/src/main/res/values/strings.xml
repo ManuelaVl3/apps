@@ -12,6 +12,7 @@
     <string name="show_password">Mostrar contraseña</string>
     <string name="hide_password">Ocultar contraseña</string>
     <string name="invalid_email">Ingresa un correo válido</string>
+    <string name="password_invalid">La contraseña debe tener al menos 10 caracteres y 1 carácter especial</string>
     <string name="password_too_short">La contraseña debe tener al menos 10 caracteres</string>
     <string name="password_no_special">La contraseña debe contener al menos 1 carácter especial</string>
     <string name="name_invalid">El nombre solo puede contener letras</string>
@@ -66,4 +67,18 @@
     <string name="create_category">Categoría</string>
     <string name="create_save">Guardar</string>
     <string name="back">Atrás</string>
+
+    <!-- HomeUser specific strings -->
+    <string name="user_greating">Hola, </string>
+    <string name="name_user_greating">Manuela</string>
+    <string name="user_wave"> 👋</string>
+    <string name="user_subtitle">¿De qué tienes antojo?</string>
+    <string name="back_button">Regresar</string>
+
+    <!-- BottomBar specific strings -->
+    <string name="home">Inicio</string>
+    <string name="my_places">Mis lugares</string>
+    <string name="favorites">Favoritos</string>
+    <string name="friends">Amigos</string>
+    <string name="profile">Perfil</string>
 </resources>

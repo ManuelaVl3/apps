@@ -2,14 +2,10 @@ package com.example.app.ui.screens
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.Cancel
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
@@ -23,8 +19,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -33,7 +27,7 @@ import com.example.app.ui.theme.ErrorColor
 import com.example.app.ui.theme.Orange
 import com.example.app.ui.theme.OrangeDeep
 import com.example.app.ui.theme.Peach
-import com.example.app.ui.theme.TextDark
+import com.example.app.ui.components.InputText
 
 @Composable
 fun LoginForm(
@@ -47,11 +41,7 @@ fun LoginForm(
     var passwordVisible by rememberSaveable { mutableStateOf(false) }
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
-    
-    var isEmailError by rememberSaveable { mutableStateOf(false) }
-    var isPasswordError by rememberSaveable { mutableStateOf(false) }
-    
-    val successMessage = stringResource(R.string.login_success)
+
     val errorMessage = stringResource(R.string.login_error)
     
     fun isValidEmail(email: String): Boolean {
@@ -69,11 +59,13 @@ fun LoginForm(
     val isPasswordValid = password.isNotBlank() && isValidPassword(password)
     val isFormValid = isEmailValid && isPasswordValid
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.White)
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = MaterialTheme.colorScheme.background
     ) {
+        Box(
+            modifier = Modifier.fillMaxSize()
+        ) {
         BackgroundBubbles()
         
         Column(
@@ -97,93 +89,31 @@ fun LoginForm(
                 text = stringResource(R.string.welcome),
                 fontSize = 28.sp,
                 fontWeight = FontWeight.SemiBold,
-                color = TextDark,
+                color = MaterialTheme.colorScheme.onBackground,
                 textAlign = TextAlign.Center
             )
 
             Spacer(Modifier.height(50.dp))
 
-            OutlinedTextField(
+            InputText(
                 value = email,
-                onValueChange = { 
-                    email = it
-                    isEmailError = it.isNotEmpty() && !isValidEmail(it)
-                },
-                label = { Text(stringResource(R.string.email)) },
-                modifier = Modifier
-                    .fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = OrangeDeep,
-                    unfocusedBorderColor = peachBorder.copy(alpha = 0.6f)
-                ),
-                isError = isEmailError,
-                singleLine = true,
-                trailingIcon = {
-                    when {
-                        email.isNotEmpty() && isValidEmail(email) -> {
-                            Icon(
-                                imageVector = Icons.Default.CheckCircle,
-                                contentDescription = "Email válido",
-                                tint = OrangeDeep,
-                                modifier = Modifier.size(20.dp)
-                            )
-                        }
-                        email.isNotEmpty() && !isValidEmail(email) -> {
-                            Icon(
-                                imageVector = Icons.Default.Cancel,
-                                contentDescription = "Email inválido",
-                                tint = ErrorColor,
-                                modifier = Modifier.size(20.dp)
-                            )
-                        }
-                    }
-                },
-                supportingText = {
-                    if (isEmailError) {
-                        Text(stringResource(R.string.invalid_email), fontSize = 12.sp, color = ErrorColor)
-                    }
-                }
+                onValueChange = { email = it },
+                label = stringResource(R.string.email),
+                supportingText = stringResource(R.string.invalid_email),
+                onValidate = { email -> isValidEmail(email) }
             )
 
-            OutlinedTextField(
+            Spacer(Modifier.height(16.dp))
+
+            InputText(
                 value = password,
-                onValueChange = { 
-                    password = it
-                    isPasswordError = it.isNotEmpty() && !isValidPassword(it)
-                },
-                label = { Text(stringResource(R.string.password)) },
-                modifier = Modifier
-                    .fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = OrangeDeep,
-                    unfocusedBorderColor = peachBorder.copy(alpha = 0.6f)
-                ),
-                isError = isPasswordError,
-                singleLine = true,
-                visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-                supportingText = {
-                    if (isPasswordError) {
-                        val errorMessage = when {
-                            password.length < 10 -> stringResource(R.string.password_too_short)
-                            !password.matches("[!@#$%^&*(),.?\":{}|<>]".toRegex()) -> stringResource(R.string.password_no_special)
-                            else -> ""
-                        }
-                        Text(errorMessage, fontSize = 12.sp, color = ErrorColor)
-                    }
-                },
-                trailingIcon = {
-                    val iconRes = if (passwordVisible) R.drawable.visible_password else R.drawable.password_encrypt
-                    IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                        Icon(
-                            painter = painterResource(id = iconRes),
-                            contentDescription = if (passwordVisible) stringResource(R.string.hide_password) else stringResource(R.string.show_password),
-                            tint = Color.Unspecified,
-                            modifier = Modifier.size(17.dp)
-                        )
-                    }
-                }
+                onValueChange = { password = it },
+                label = stringResource(R.string.password),
+                supportingText = stringResource(R.string.password_invalid),
+                onValidate = { password -> isValidPassword(password) },
+                isPassword = true,
+                passwordVisible = passwordVisible,
+                onPasswordVisibilityToggle = { passwordVisible = !passwordVisible }
             )
 
             Spacer(Modifier.height(50.dp))
@@ -192,7 +122,7 @@ fun LoginForm(
                 onClick = {
                     scope.launch {
                         if(email == "manuela@email.com" && password == "1234567890*"){
-                            snackbarHostState.showSnackbar(successMessage)
+                            //snackbarHostState.showSnackbar(successMessage)
                             delay(500)
                             onLoginSuccess()
                         }else{
@@ -219,7 +149,7 @@ fun LoginForm(
 
             Text(
                 text = stringResource(R.string.login_register_link),
-                color = Color(0xFF2E2E2E),
+                color = MaterialTheme.colorScheme.onBackground,
                 modifier = Modifier.clickable { onRegister() }
             )
 
@@ -227,7 +157,7 @@ fun LoginForm(
 
             Text(
                 text = stringResource(R.string.login_forgot_password),
-                color = Color(0xFF2E2E2E)
+                color = MaterialTheme.colorScheme.onBackground
             )
 
             Spacer(Modifier.height(16.dp))
@@ -247,6 +177,7 @@ fun LoginForm(
                 )
             }
         )
+        }
     }
 }
 @Composable

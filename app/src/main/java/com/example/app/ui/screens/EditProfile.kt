@@ -1,11 +1,7 @@
 package com.example.app.ui.screens
 
-import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ModeEdit
@@ -16,17 +12,9 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import kotlinx.coroutines.launch
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -37,8 +25,6 @@ import com.example.app.ui.theme.Orange
 import com.example.app.ui.theme.MontserratFamily
 import com.example.app.ui.theme.OrangeDeep
 import com.example.app.ui.theme.Peach
-import com.example.app.ui.theme.TextDark
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditProfile(
@@ -54,16 +40,16 @@ fun EditProfile(
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     val successMessage = stringResource(R.string.edit_save_success)
-    
-    val peachBorder = Color(0xFFFFCCBC)
-    
+
     val cities = listOf("Armenia", "Pereira", "Cartagena", "Medellín", "Barranquilla", "Bogotá")
     
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.White)
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = MaterialTheme.colorScheme.background
     ) {
+        Box(
+            modifier = Modifier.fillMaxSize()
+        ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -92,7 +78,7 @@ fun EditProfile(
                         text = stringResource(R.string.edit_my_profile),
                         fontSize = 20.sp,
                         fontWeight = FontWeight.SemiBold,
-                        color = TextDark,
+                        color = MaterialTheme.colorScheme.onBackground,
                         fontFamily = MontserratFamily
                     )
                 }
@@ -218,7 +204,7 @@ fun EditProfile(
             Text(
                 text = stringResource(R.string.edit_logout),
                 fontSize = 16.sp,
-                color = TextDark,
+                color = MaterialTheme.colorScheme.onBackground,
                 fontFamily = MontserratFamily,
                 modifier = Modifier.clickable { onLogout() }
             )
@@ -236,6 +222,7 @@ fun EditProfile(
                 )
             }
         )
+        }
     }
 }
 

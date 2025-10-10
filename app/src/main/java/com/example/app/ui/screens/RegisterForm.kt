@@ -1,15 +1,11 @@
 package com.example.app.ui.screens
 
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.Cancel
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
@@ -23,8 +19,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
@@ -37,9 +31,8 @@ import com.example.app.ui.theme.ErrorColor
 import com.example.app.ui.theme.Orange
 import com.example.app.ui.theme.OrangeDeep
 import com.example.app.ui.theme.Peach
-import com.example.app.ui.theme.TextDark
+import com.example.app.ui.components.InputText
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RegisterForm(
     onRegister: () -> Unit = {},
@@ -48,12 +41,8 @@ fun RegisterForm(
     var name by rememberSaveable { mutableStateOf("") }
     var email by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
-    var city by rememberSaveable { mutableStateOf("") }
     var passwordVisible by rememberSaveable { mutableStateOf(false) }
 
-    var isNameError by rememberSaveable { mutableStateOf(false) }
-    var isEmailError by rememberSaveable { mutableStateOf(false) }
-    var isPasswordError by rememberSaveable { mutableStateOf(false) }
     var isCityError by rememberSaveable { mutableStateOf(false) }
     var selectedCity by rememberSaveable { mutableStateOf("") }
     
@@ -91,21 +80,14 @@ fun RegisterForm(
     val isCityValid = selectedCity.isNotBlank() && isValidCity(selectedCity)
     val isFormValid = isNameValid && isEmailValid && isPasswordValid && isCityValid
     
-    LaunchedEffect(isFormValid, isNameValid, isEmailValid, isPasswordValid, isCityValid) {
-        Log.d("RegisterForm", "Validation status:")
-        Log.d("RegisterForm", "  Name valid: $isNameValid (value: '$name')")
-        Log.d("RegisterForm", "  Email valid: $isEmailValid (value: '$email')")
-        Log.d("RegisterForm", "  Password valid: $isPasswordValid (value: '$password')")
-        Log.d("RegisterForm", "  City valid: $isCityValid (value: '$selectedCity')")
-        Log.d("RegisterForm", "  Form valid: $isFormValid")
-        Log.d("RegisterForm", "  Button enabled: $isFormValid")
-    }
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.White)
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = MaterialTheme.colorScheme.background
     ) {
+        Box(
+            modifier = Modifier.fillMaxSize()
+        ) {
         BackgroundBubbles()
 
         Column(
@@ -126,7 +108,7 @@ fun RegisterForm(
             Text(
                 text = stringResource(R.string.register_welcome),
                 fontSize = 20.sp,
-                color = TextDark,
+                color = MaterialTheme.colorScheme.onBackground,
                 textAlign = TextAlign.Center
             )
 
@@ -149,140 +131,41 @@ fun RegisterForm(
             Text(
                 text = stringResource(R.string.register_subtitle),
                 fontSize = 14.sp,
-                color = Color(0xFF666666),
+                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f),
                 textAlign = TextAlign.Center
             )
 
             Spacer(Modifier.height(20.dp))
 
-            OutlinedTextField(
+            InputText(
                 value = name,
-                onValueChange = { 
-                    name = it
-                    isNameError = it.isNotEmpty() && !isValidName(it)
-                },
-                label = { Text(stringResource(R.string.name)) },
-                modifier = Modifier
-                    .fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = OrangeDeep,
-                    unfocusedBorderColor = peachBorder.copy(alpha = 0.6f)
-                ),
-                isError = isNameError,
-                singleLine = true,
-                trailingIcon = {
-                    when {
-                        name.isNotEmpty() && isValidName(name) -> {
-                            Icon(
-                                imageVector = Icons.Default.CheckCircle,
-                                contentDescription = "Nombre válido",
-                                tint = OrangeDeep,
-                                modifier = Modifier.size(20.dp)
-                            )
-                        }
-                        name.isNotEmpty() && !isValidName(name) -> {
-                            Icon(
-                                imageVector = Icons.Default.Cancel,
-                                contentDescription = "Nombre inválido",
-                                tint = ErrorColor,
-                                modifier = Modifier.size(20.dp)
-                            )
-                        }
-                    }
-                },
-                supportingText = {
-                    if (isNameError) {
-                        Text(stringResource(R.string.name_invalid), fontSize = 12.sp, color = ErrorColor)
-                    }
-                }
+                onValueChange = { name = it },
+                label = stringResource(R.string.name),
+                supportingText = stringResource(R.string.name_invalid),
+                onValidate = { name -> isValidName(name) }
             )
 
             Spacer(Modifier.height(16.dp))
 
-            OutlinedTextField(
+            InputText(
                 value = email,
-                onValueChange = { 
-                    email = it
-                    isEmailError = it.isNotEmpty() && !isValidEmail(it)
-                },
-                label = { Text(stringResource(R.string.email)) },
-                modifier = Modifier
-                    .fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = OrangeDeep,
-                    unfocusedBorderColor = peachBorder.copy(alpha = 0.6f)
-                ),
-                singleLine = true,
-                isError = isEmailError,
-                trailingIcon = {
-                    when {
-                        email.isNotEmpty() && isValidEmail(email) -> {
-                            Icon(
-                                imageVector = Icons.Default.CheckCircle,
-                                contentDescription = "Email válido",
-                                tint = OrangeDeep,
-                                modifier = Modifier.size(20.dp)
-                            )
-                        }
-                        email.isNotEmpty() && !isValidEmail(email) -> {
-                            Icon(
-                                imageVector = Icons.Default.Cancel,
-                                contentDescription = "Email inválido",
-                                tint = ErrorColor,
-                                modifier = Modifier.size(20.dp)
-                            )
-                        }
-                    }
-                },
-                supportingText = {
-                    if (isEmailError) {
-                        Text(stringResource(R.string.invalid_email), fontSize = 12.sp, color = ErrorColor)
-                    }
-                }
+                onValueChange = { email = it },
+                label = stringResource(R.string.email),
+                supportingText = stringResource(R.string.invalid_email),
+                onValidate = { email -> isValidEmail(email) }
             )
 
             Spacer(Modifier.height(16.dp))
 
-            OutlinedTextField(
+            InputText(
                 value = password,
-                onValueChange = { 
-                    password = it
-                    isPasswordError = it.isNotEmpty() && !isValidPassword(it)
-                },
-                label = { Text(stringResource(R.string.password)) },
-                modifier = Modifier
-                    .fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = OrangeDeep,
-                    unfocusedBorderColor = peachBorder.copy(alpha = 0.6f)
-                ),
-                isError = isPasswordError,
-                singleLine = true,
-                visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-                supportingText = {
-                    if (isPasswordError) {
-                        val errorMessage = when {
-                            password.length < 10 -> stringResource(R.string.password_too_short)
-                            !password.matches("[!@#$%^&*(),.?\":{}|<>]".toRegex()) -> stringResource(R.string.password_no_special)
-                            else -> ""
-                        }
-                        Text(errorMessage, fontSize = 12.sp, color = ErrorColor)
-                    }
-                },
-                trailingIcon = {
-                    val iconRes = if (passwordVisible) R.drawable.visible_password else R.drawable.password_encrypt
-                    IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                        Icon(
-                            painter = painterResource(id = iconRes),
-                            contentDescription = if (passwordVisible) stringResource(R.string.hide_password) else stringResource(R.string.show_password),
-                            tint = Color.Unspecified,
-                            modifier = Modifier.size(17.dp)
-                        )
-                    }
-                }
+                onValueChange = { password = it },
+                label = stringResource(R.string.password),
+                supportingText = stringResource(R.string.password_invalid),
+                onValidate = { password -> isValidPassword(password) },
+                isPassword = true,
+                passwordVisible = passwordVisible,
+                onPasswordVisibilityToggle = { passwordVisible = !passwordVisible }
             )
 
             Spacer(Modifier.height(16.dp))
@@ -290,7 +173,6 @@ fun RegisterForm(
             DropdownMenu(
                 value = selectedCity,
                 onValueChange = { newCity ->
-                    Log.d("RegisterForm", "City onValueChange called with: '$newCity'")
                     selectedCity = newCity
                 },
                 options = cities,
@@ -298,11 +180,8 @@ fun RegisterForm(
                 isError = isCityError,
                 errorMessage = stringResource(R.string.city_invalid),
                 onSelectionChange = { newSelectedCity ->
-                    Log.d("RegisterForm", "City selected: '$newSelectedCity'")
                     selectedCity = newSelectedCity
                     isCityError = newSelectedCity.isNotEmpty() && !isValidCity(newSelectedCity)
-                    Log.d("RegisterForm", "Updated selectedCity to: '$selectedCity'")
-                    Log.d("RegisterForm", "Is city valid: ${isValidCity(newSelectedCity)}")
                 },
                 modifier = Modifier.fillMaxWidth()
             )
@@ -314,8 +193,6 @@ fun RegisterForm(
                     Log.d("RegisterForm", "Register button clicked")
                     Log.d("RegisterForm", "Capturing city selection now")
                     Log.d("RegisterForm", "Final city value: '$selectedCity'")
-                    
-                    city = selectedCity
                     
                     scope.launch {
                         snackbarHostState.showSnackbar(successMessage)
@@ -341,7 +218,7 @@ fun RegisterForm(
             Text(
                 text = stringResource(R.string.register_already_registered),
                 fontSize = 16.sp,
-                color = TextDark,
+                color = MaterialTheme.colorScheme.onBackground,
                 modifier = Modifier.clickable(onClick = onLoginClick)
             )
         }
@@ -358,6 +235,7 @@ fun RegisterForm(
                 )
             }
         )
+        }
     }
 }
 
