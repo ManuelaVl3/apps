@@ -6,6 +6,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -26,6 +27,7 @@ import com.example.app.R
 import com.example.app.ui.theme.AppTheme
 import com.example.app.ui.theme.MontserratFamily
 import com.example.app.ui.theme.Orange
+import com.example.app.ui.theme.OrangeDeep
 import com.example.app.viewmodel.PlacesViewModel
 
 @Composable
@@ -49,17 +51,30 @@ fun Places(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(24.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
+                horizontalAlignment = Alignment.Start,
                 verticalArrangement = Arrangement.Top
             ) {
-            Text(
-                text = stringResource(R.string.my_places),
-                fontSize = 24.sp,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onBackground,
-                textAlign = TextAlign.Center,
-                fontFamily = MontserratFamily
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    imageVector = Icons.Default.LocationOn,
+                    contentDescription = "Mis lugares",
+                    tint = OrangeDeep,
+                    modifier = Modifier.size(24.dp)
+                )
+                
+                Spacer(Modifier.width(12.dp))
+                
+                Text(
+                    text = stringResource(R.string.my_places),
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onBackground,
+                    fontFamily = MontserratFamily
+                )
+            }
             
             Spacer(Modifier.height(16.dp))
             

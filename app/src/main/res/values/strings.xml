@@ -61,6 +61,11 @@
     <string name="edit_save_success">¡Información actualizada exitosamente!</string>
     <string name="edit_logout">Cerrar sesión</string>
     <string name="username">Usuario</string>
+    <string name="favorite_added_success">¡Añadido a favoritos exitosamente!</string>
+    <string name="comment_published_success">Comentario publicado</string>
+    <string name="complete_rating_comment">Completa la calificación y el comentario</string>
+    <string name="place_deleted_success">Lugar eliminado</string>
+    <string name="place_shared_success">Lugar compartido exitosamente</string>
     
     <!-- CreateForm specific strings -->
     <string name="create_form_title">Crear nuevo lugar</string>

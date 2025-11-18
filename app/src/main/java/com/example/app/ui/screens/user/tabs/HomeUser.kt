@@ -1,4 +1,4 @@
-package com.example.app.ui.screens.user
+package com.example.app.ui.screens.user.tabs
 
 import androidx.compose.material3.*
 import androidx.compose.runtime.*

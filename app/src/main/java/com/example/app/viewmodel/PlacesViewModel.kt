@@ -268,7 +268,7 @@ class PlacesViewModel: ViewModel() {
         return false
     }
 
-    private fun calculateDistance(lat1: Double, lon1: Double, lat2: Double, lon2: Double): Double {
+    fun calculateDistance(lat1: Double, lon1: Double, lat2: Double, lon2: Double): Double {
         val earthRadius = 6371.0
         
         val dLat = Math.toRadians(lat2 - lat1)

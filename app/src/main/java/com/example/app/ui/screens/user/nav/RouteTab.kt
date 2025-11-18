@@ -7,7 +7,7 @@ sealed class RouteTab {
     data object Map : RouteTab()
 
     @Serializable
-    data object Search : RouteTab()
+    data object Favorites : RouteTab()
 
     @Serializable
     data object Places : RouteTab()
@@ -22,5 +22,8 @@ sealed class RouteTab {
     data class PlaceDetail(val placeId: String) : RouteTab()
     
     @Serializable
-    data object CreatePlace : RouteTab()
+    data class CreatePlace(val placeId: String? = null) : RouteTab()
+    
+    @Serializable
+    data class Chat(val friendId: String) : RouteTab()
 }

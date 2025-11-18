@@ -10,10 +10,12 @@ import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
 import androidx.compose.foundation.layout.PaddingValues
 import com.example.app.ui.screens.user.tabs.Map
-import com.example.app.ui.screens.user.tabs.Search
+import com.example.app.ui.screens.user.tabs.Favorites
 import com.example.app.ui.screens.user.tabs.Places
 import com.example.app.ui.screens.user.tabs.PlaceDetail
 import com.example.app.ui.screens.user.tabs.CreatePlaceForm
+import com.example.app.ui.screens.user.tabs.Friends
+import com.example.app.ui.screens.user.tabs.Chat
 import com.example.app.ui.screens.EditProfile
 import com.example.app.viewmodel.UsersViewModel
 
@@ -26,6 +28,8 @@ fun ContentUser(
     onLogout: () -> Unit = {}
 ) {
     val usersViewModel = remember { UsersViewModel() }
+    val messagesViewModel = remember { com.example.app.viewmodel.MessagesViewModel() }
+    val favoritesViewModel = remember { com.example.app.viewmodel.FavoritesViewModel() }
     
     NavHost(
         modifier = Modifier.padding(paddingValues = padding),
@@ -33,11 +37,23 @@ fun ContentUser(
         startDestination = RouteTab.Map
     ) {
         composable<RouteTab.Map> {
-            Map()
+            Map(
+                placesViewModel = placesViewModel,
+                onPlaceClick = { placeId ->
+                    navController.navigate(RouteTab.PlaceDetail(placeId))
+                }
+            )
         }
         
-        composable<RouteTab.Search> {
-            Search()
+        composable<RouteTab.Favorites> {
+            Favorites(
+                userId = user?.userId ?: "1",
+                favoritesViewModel = favoritesViewModel,
+                placesViewModel = placesViewModel,
+                onPlaceClick = { placeId ->
+                    navController.navigate(RouteTab.PlaceDetail(placeId))
+                }
+            )
         }
         
         composable<RouteTab.Places> {
@@ -47,9 +63,9 @@ fun ContentUser(
                 onPlaceClick = { placeId ->
                     navController.navigate(RouteTab.PlaceDetail(placeId))
                 },
-                onCreatePlace = {
-                    navController.navigate(RouteTab.CreatePlace)
-                }
+                       onCreatePlace = {
+                           navController.navigate(RouteTab.CreatePlace(null))
+                       }
             )
         }
         
@@ -58,21 +74,51 @@ fun ContentUser(
             PlaceDetail(
                 placeId = route.placeId,
                 placesViewModel = placesViewModel,
-                onBack = { navController.popBackStack() }
+                messagesViewModel = messagesViewModel,
+                favoritesViewModel = favoritesViewModel,
+                userId = user?.userId ?: "1",
+                onBack = { navController.popBackStack() },
+                onEdit = { placeId ->
+                    navController.navigate(RouteTab.CreatePlace(placeId))
+                },
+                onDelete = {
+                    navController.popBackStack()
+                }
             )
         }
         
-        composable<RouteTab.CreatePlace> {
+        composable<RouteTab.CreatePlace> { backStackEntry ->
+            val route = backStackEntry.toRoute<RouteTab.CreatePlace>()
             CreatePlaceForm(
                 userId = user?.userId ?: "1",
                 placesViewModel = placesViewModel,
                 usersViewModel = usersViewModel,
+                placeId = route.placeId,
                 onBack = { navController.popBackStack() }
             )
         }
         
         composable<RouteTab.Friends> {
-            com.example.app.ui.screens.user.Friends()
+            Friends(
+                userId = user?.userId ?: "1",
+                onFriendClick = { friendId ->
+                    navController.navigate(RouteTab.Chat(friendId))
+                }
+            )
+        }
+        
+        composable<RouteTab.Chat> { backStackEntry ->
+            val route = backStackEntry.toRoute<RouteTab.Chat>()
+            Chat(
+                friendId = route.friendId,
+                userId = user?.userId ?: "1",
+                messagesViewModel = messagesViewModel,
+                placesViewModel = placesViewModel,
+                onBack = { navController.popBackStack() },
+                onPlaceClick = { placeId ->
+                    navController.navigate(RouteTab.PlaceDetail(placeId))
+                }
+            )
         }
         
         composable<RouteTab.Profile> {

@@ -7,7 +7,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.example.app.ui.config.RouteScreen
 import com.example.app.ui.screens.admin.HomeAdmin
-import com.example.app.ui.screens.user.HomeUser
+import com.example.app.ui.screens.user.tabs.HomeUser
 
 @Composable
 fun Navigation() {

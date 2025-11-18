@@ -10,6 +10,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.AddPhotoAlternate
 import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.ModeEdit
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -42,21 +43,110 @@ fun CreatePlaceForm(
     userId: String,
     placesViewModel: PlacesViewModel,
     usersViewModel: UsersViewModel,
+    placeId: String? = null,
     onBack: () -> Unit = {}
 ) {
-    var placeName by rememberSaveable { mutableStateOf("") }
-    var description by rememberSaveable { mutableStateOf("") }
-    var schedules by rememberSaveable { mutableStateOf(listOf<Schedule>()) }
-    var phone by rememberSaveable { mutableStateOf("") }
-    var city by rememberSaveable { mutableStateOf("") }
-    var address by rememberSaveable { mutableStateOf("") }
-    var category by rememberSaveable { mutableStateOf("") }
+    val isEditMode = placeId != null
+    
+    var placeName by rememberSaveable { 
+        mutableStateOf("") 
+    }
+    var description by rememberSaveable { 
+        mutableStateOf("") 
+    }
+    var schedules by rememberSaveable { 
+        mutableStateOf(listOf<Schedule>()) 
+    }
+    var phone by rememberSaveable { 
+        mutableStateOf("") 
+    }
+    var city by rememberSaveable { 
+        mutableStateOf("") 
+    }
+    var address by rememberSaveable { 
+        mutableStateOf("") 
+    }
+    var category by rememberSaveable { 
+        mutableStateOf("") 
+    }
+    
+    // Estados de edición (solo en modo edición)
+    var isEditingName by rememberSaveable { mutableStateOf(!isEditMode) }
+    var isEditingDescription by rememberSaveable { mutableStateOf(!isEditMode) }
+    var isEditingPhone by rememberSaveable { mutableStateOf(!isEditMode) }
+    var isEditingAddress by rememberSaveable { mutableStateOf(!isEditMode) }
+    var isEditingCategory by rememberSaveable { mutableStateOf(!isEditMode) }
+    var isEditingSchedules by rememberSaveable { mutableStateOf(!isEditMode) }
+    
+    // Valores originales para comparar cambios (solo en modo edición)
+    var originalPlaceName by remember { mutableStateOf("") }
+    var originalDescription by remember { mutableStateOf("") }
+    var originalSchedules by remember { mutableStateOf(listOf<Schedule>()) }
+    var originalPhone by remember { mutableStateOf("") }
+    var originalCity by remember { mutableStateOf("") }
+    var originalAddress by remember { mutableStateOf("") }
+    var originalCategory by remember { mutableStateOf("") }
+    
+    // Cargar datos del lugar cuando se carga para editar
+    LaunchedEffect(placeId) {
+        placeId?.let { id ->
+            val place = placesViewModel.findByPlaceId(id)
+            place?.let {
+                placeName = it.placeName
+                description = it.description
+                schedules = it.schedules
+                phone = it.phones.firstOrNull() ?: ""
+                city = it.location.locationId
+                address = it.address
+                category = when (it.type) {
+                    com.example.app.model.PlaceType.RESTAURANT -> "Restaurantes"
+                    com.example.app.model.PlaceType.FASTFOOD -> "Comidas rápidas"
+                    com.example.app.model.PlaceType.COFFEESHOP -> "Cafetería"
+                    com.example.app.model.PlaceType.MUSEUM -> "Museos"
+                    com.example.app.model.PlaceType.HOTEL -> "Hoteles"
+                }
+                
+                // Guardar valores originales
+                originalPlaceName = it.placeName
+                originalDescription = it.description
+                originalSchedules = it.schedules
+                originalPhone = it.phones.firstOrNull() ?: ""
+                originalCity = it.location.locationId
+                originalAddress = it.address
+                originalCategory = when (it.type) {
+                    com.example.app.model.PlaceType.RESTAURANT -> "Restaurantes"
+                    com.example.app.model.PlaceType.FASTFOOD -> "Comidas rápidas"
+                    com.example.app.model.PlaceType.COFFEESHOP -> "Cafetería"
+                    com.example.app.model.PlaceType.MUSEUM -> "Museos"
+                    com.example.app.model.PlaceType.HOTEL -> "Hoteles"
+                }
+            }
+        }
+    }
     
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     
     val categories = listOf("Restaurantes", "Comidas rápidas", "Cafetería", "Museos", "Hoteles")
     val cities = listOf("Armenia", "Pereira", "Cartagena", "Medellín", "Barranquilla", "Bogotá")
+    
+    // Verificar si hay cambios en modo edición
+    val hasChanges = remember(placeName, description, schedules, phone, city, address, category, 
+                              originalPlaceName, originalDescription, originalSchedules, 
+                              originalPhone, originalCity, originalAddress, originalCategory) {
+        if (!isEditMode) return@remember true // En modo creación, siempre permitir guardar si el formulario es válido
+        
+        // Comparar cada campo con su valor original
+        val nameChanged = placeName != originalPlaceName
+        val descriptionChanged = description != originalDescription
+        val phoneChanged = phone != originalPhone
+        val cityChanged = city != originalCity
+        val addressChanged = address != originalAddress
+        val categoryChanged = category != originalCategory
+        val schedulesChanged = schedules != originalSchedules
+        
+        nameChanged || descriptionChanged || phoneChanged || cityChanged || addressChanged || categoryChanged || schedulesChanged
+    }
     
     val isFormValid = remember(placeName, description, schedules, phone, city, address, category) {
         val daysOfWeek = listOf("Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo")
@@ -169,9 +259,24 @@ fun CreatePlaceForm(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = Orange,
-                        unfocusedBorderColor = Orange.copy(alpha = 0.6f)
-                    )
+                        focusedBorderColor = if (isEditingName) OrangeDeep else Orange,
+                        unfocusedBorderColor = if (isEditingName) OrangeDeep else Orange.copy(alpha = 0.6f)
+                    ),
+                    enabled = isEditingName || !isEditMode,
+                    trailingIcon = if (isEditMode) {
+                        {
+                            IconButton(
+                                onClick = { isEditingName = !isEditingName }
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.ModeEdit,
+                                    contentDescription = if (isEditingName) "Guardar nombre" else "Editar nombre",
+                                    tint = Orange,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            }
+                        }
+                    } else null
                 )
                 
                 // Descripción
@@ -184,10 +289,25 @@ fun CreatePlaceForm(
                         .height(120.dp),
                     shape = RoundedCornerShape(12.dp),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = Orange,
-                        unfocusedBorderColor = Orange.copy(alpha = 0.6f)
+                        focusedBorderColor = if (isEditingDescription) OrangeDeep else Orange,
+                        unfocusedBorderColor = if (isEditingDescription) OrangeDeep else Orange.copy(alpha = 0.6f)
                     ),
-                    maxLines = 4
+                    enabled = isEditingDescription || !isEditMode,
+                    maxLines = 4,
+                    trailingIcon = if (isEditMode) {
+                        {
+                            IconButton(
+                                onClick = { isEditingDescription = !isEditingDescription }
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.ModeEdit,
+                                    contentDescription = if (isEditingDescription) "Guardar descripción" else "Editar descripción",
+                                    tint = Orange,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            }
+                        }
+                    } else null
                 )
                 
                 // Sección de horarios
@@ -204,9 +324,24 @@ fun CreatePlaceForm(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = Orange,
-                        unfocusedBorderColor = Orange.copy(alpha = 0.6f)
-                    )
+                        focusedBorderColor = if (isEditingPhone) OrangeDeep else Orange,
+                        unfocusedBorderColor = if (isEditingPhone) OrangeDeep else Orange.copy(alpha = 0.6f)
+                    ),
+                    enabled = isEditingPhone || !isEditMode,
+                    trailingIcon = if (isEditMode) {
+                        {
+                            IconButton(
+                                onClick = { isEditingPhone = !isEditingPhone }
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.ModeEdit,
+                                    contentDescription = if (isEditingPhone) "Guardar teléfono" else "Editar teléfono",
+                                    tint = Orange,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            }
+                        }
+                    } else null
                 )
                 
                 // Ciudad
@@ -215,7 +350,22 @@ fun CreatePlaceForm(
                     value = city,
                     onValueChange = { city = it },
                     label = stringResource(R.string.city),
-                    modifier = Modifier.fillMaxWidth()
+                    enabled = isEditingCategory || !isEditMode,
+                    modifier = Modifier.fillMaxWidth(),
+                    trailingIcon = if (isEditMode) {
+                        {
+                            IconButton(
+                                onClick = { isEditingCategory = !isEditingCategory }
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.ModeEdit,
+                                    contentDescription = if (isEditingCategory) "Guardar ciudad" else "Editar ciudad",
+                                    tint = Orange,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            }
+                        }
+                    } else null
                 )
                 
                 // Dirección
@@ -226,9 +376,24 @@ fun CreatePlaceForm(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = Orange,
-                        unfocusedBorderColor = Orange.copy(alpha = 0.6f)
-                    )
+                        focusedBorderColor = if (isEditingAddress) OrangeDeep else Orange,
+                        unfocusedBorderColor = if (isEditingAddress) OrangeDeep else Orange.copy(alpha = 0.6f)
+                    ),
+                    enabled = isEditingAddress || !isEditMode,
+                    trailingIcon = if (isEditMode) {
+                        {
+                            IconButton(
+                                onClick = { isEditingAddress = !isEditingAddress }
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.ModeEdit,
+                                    contentDescription = if (isEditingAddress) "Guardar dirección" else "Editar dirección",
+                                    tint = Orange,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            }
+                        }
+                    } else null
                 )
                 
                 // Sección de imagen (opcional)
@@ -346,7 +511,22 @@ fun CreatePlaceForm(
                     value = category,
                     onValueChange = { category = it },
                     label = stringResource(R.string.create_category),
-                    modifier = Modifier.fillMaxWidth()
+                    enabled = isEditingCategory || !isEditMode,
+                    modifier = Modifier.fillMaxWidth(),
+                    trailingIcon = if (isEditMode) {
+                        {
+                            IconButton(
+                                onClick = { isEditingCategory = !isEditingCategory }
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.ModeEdit,
+                                    contentDescription = if (isEditingCategory) "Guardar categoría" else "Editar categoría",
+                                    tint = Orange,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            }
+                        }
+                    } else null
                 )
                 
                 Spacer(Modifier.height(24.dp))
@@ -354,18 +534,76 @@ fun CreatePlaceForm(
                 // Botón Guardar
                 Button(
                     onClick = {
-                        // Aquí irá la lógica para guardar el lugar
-                        scope.launch {
-                            snackbarHostState.showSnackbar("Lugar creado exitosamente")
+                        val placeType = when (category) {
+                            "Restaurantes" -> com.example.app.model.PlaceType.RESTAURANT
+                            "Comidas rápidas" -> com.example.app.model.PlaceType.FASTFOOD
+                            "Cafetería" -> com.example.app.model.PlaceType.COFFEESHOP
+                            "Museos" -> com.example.app.model.PlaceType.MUSEUM
+                            "Hoteles" -> com.example.app.model.PlaceType.HOTEL
+                            else -> com.example.app.model.PlaceType.RESTAURANT
+                        }
+                        
+                        // Mapear ciudad a ubicación
+                        val location = when (city) {
+                            "Armenia" -> com.example.app.model.Location("loc1", 4.5339, -75.6811)
+                            "Pereira" -> com.example.app.model.Location("loc2", 4.8133, -75.6961)
+                            "Cartagena" -> com.example.app.model.Location("loc3", 10.3910, -75.4794)
+                            "Medellín" -> com.example.app.model.Location("loc4", 6.2476, -75.5658)
+                            "Barranquilla" -> com.example.app.model.Location("loc5", 10.9639, -74.7964)
+                            "Bogotá" -> com.example.app.model.Location("loc6", 4.7110, -74.0721)
+                            else -> com.example.app.model.Location("loc1", 4.5339, -75.6811) // Armenia por defecto
+                        }
+                        
+                        if (isEditMode && placeId != null) {
+                            // Modo edición
+                            val existingPlace = placesViewModel.findByPlaceId(placeId)
+                            existingPlace?.let { place ->
+                                val updatedPlace = place.copy(
+                                    placeName = placeName,
+                                    description = description,
+                                    phones = listOf(phone),
+                                    type = placeType,
+                                    schedules = schedules,
+                                    location = location,
+                                    address = address
+                                )
+                                placesViewModel.update(placeId, updatedPlace)
+                                scope.launch {
+                                    snackbarHostState.showSnackbar("Lugar actualizado exitosamente")
+                                }
+                                onBack()
+                            }
+                        } else {
+                            val newPlace = com.example.app.model.Place(
+                                id = java.util.UUID.randomUUID().toString(),
+                                images = listOf("place"),
+                                placeName = placeName,
+                                description = description,
+                                phones = listOf(phone),
+                                type = placeType,
+                                schedules = schedules,
+                                location = location,
+                                address = address,
+                                createBy = userId
+                            )
+                            placesViewModel.create(newPlace)
+                            scope.launch {
+                                snackbarHostState.showSnackbar("Lugar creado exitosamente")
+                            }
+                            onBack()
                         }
                     },
-                    enabled = isFormValid,
+                    enabled = if (isEditMode) {
+                        isFormValid && hasChanges
+                    } else {
+                        isFormValid
+                    },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(52.dp),
                     shape = RoundedCornerShape(15.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = if (isFormValid) OrangeDeep else Peach,
+                        containerColor = if (if (isEditMode) (isFormValid && hasChanges) else isFormValid) OrangeDeep else Peach,
                         contentColor = Color.White,
                         disabledContainerColor = Peach,
                         disabledContentColor = Color.White

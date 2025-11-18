@@ -1,11 +1,11 @@
 package com.example.app.model
 
-data class Review (
+data class Review(
     val id: String,
     val userId: String,
-    val placeId: String,
-    val body: String,
-    val date: String,
-    val rating: Int
-){
+    val userName: String,
+    val rating: Double,
+    val comment: String,
+    val placeId: String
+) {
 }

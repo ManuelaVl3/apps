@@ -1,4 +1,4 @@
-package com.example.app.ui.screens
+package com.example.app.ui.screens.user.tabs
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.*

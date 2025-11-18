@@ -20,55 +20,55 @@ class ReviewsViewModel: ViewModel() {
             Review(
                 id = "1",
                 userId = "1",
+                userName = "Carlos Andrés Florez Villarraga",
                 placeId = "1",
-                body = "Excelente comida colombiana, muy rica y abundante. El servicio es muy atento y el ambiente es acogedor. Definitivamente volveré.",
-                date = "2024-01-15 14:30",
-                rating = 5
+                comment = "Excelente comida colombiana, muy rica y abundante. El servicio es muy atento y el ambiente es acogedor. Definitivamente volveré.",
+                rating = 5.0
             ),
             
             Review(
                 id = "2",
                 userId = "2",
+                userName = "María González",
                 placeId = "1",
-                body = "La comida está buena pero un poco cara para lo que es. El lugar está bien decorado y el personal es amable.",
-                date = "2024-01-20 19:45",
-                rating = 4
+                comment = "La comida está buena pero un poco cara para lo que es. El lugar está bien decorado y el personal es amable.",
+                rating = 4.0
             ),
             
             Review(
                 id = "3",
                 userId = "1",
+                userName = "Carlos Andrés Florez Villarraga",
                 placeId = "2",
-                body = "Un museo increíble con una colección impresionante de arte prehispánico. Muy educativo y bien organizado. Recomendado para toda la familia.",
-                date = "2024-01-18 10:15",
-                rating = 5
+                comment = "Nos llevamos la grata sorpresa fue descubrir que el ingreso al museo es totalmente gratuito, lo cual es un gesto admirable para promover el acceso al patrimonio y la educación cultural.",
+                rating = 4.0
             ),
             
             Review(
                 id = "4",
                 userId = "3",
+                userName = "Ana Martínez",
                 placeId = "2",
-                body = "Interesante exposición sobre la cultura quimbaya. Las piezas están muy bien conservadas y las explicaciones son claras.",
-                date = "2024-01-22 16:20",
-                rating = 4
+                comment = "Interesante exposición sobre la cultura quimbaya. Las piezas están muy bien conservadas y las explicaciones son claras.",
+                rating = 4.0
             ),
             
             Review(
                 id = "5",
                 userId = "2",
+                userName = "María González",
                 placeId = "3",
-                body = "Hotel muy cómodo y bien ubicado. Las habitaciones son amplias y limpias. El desayuno está incluido y es muy bueno.",
-                date = "2024-01-25 11:00",
-                rating = 5
+                comment = "Hotel muy cómodo y bien ubicado. Las habitaciones son amplias y limpias. El desayuno está incluido y es muy bueno.",
+                rating = 5.0
             ),
             
             Review(
                 id = "6",
                 userId = "1",
+                userName = "Carlos Andrés Florez Villarraga",
                 placeId = "3",
-                body = "Servicio impecable y habitaciones muy confortables. La piscina está genial y el personal es muy atento. Perfecto para descansar.",
-                date = "2024-01-28 13:30",
-                rating = 5
+                comment = "Servicio impecable y habitaciones muy confortables. La piscina está genial y el personal es muy atento. Perfecto para descansar.",
+                rating = 5.0
             )
         )
     }
@@ -89,13 +89,13 @@ class ReviewsViewModel: ViewModel() {
         return _reviews.value.filter { it.userId == userId }
     }
 
-    fun findByRating(rating: Int): List<Review>{
+    fun findByRating(rating: Double): List<Review>{
         return _reviews.value.filter { it.rating == rating }
     }
 
     fun findByName(searchText: String): List<Review>{
         return _reviews.value.filter { 
-            it.body.contains(searchText, ignoreCase = true) 
+            it.comment.contains(searchText, ignoreCase = true) 
         }
     }
 
@@ -136,7 +136,7 @@ class ReviewsViewModel: ViewModel() {
         return findByPlaceId(placeId).size
     }
 
-    fun getRatingDistributionForPlace(placeId: String): Map<Int, Int> {
+    fun getRatingDistributionForPlace(placeId: String): Map<Double, Int> {
         val placeReviews = findByPlaceId(placeId)
         return placeReviews.groupingBy { it.rating }.eachCount()
     }
