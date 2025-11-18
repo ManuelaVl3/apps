@@ -124,6 +124,7 @@ fun EditProfile(
             
             Spacer(Modifier.height(20.dp))
             
+            // Username Field
             OutlinedTextField(
                 value = username,
                 onValueChange = { username = it },

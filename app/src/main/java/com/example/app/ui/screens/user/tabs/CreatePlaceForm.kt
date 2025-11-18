@@ -25,12 +25,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.app.R
-import com.example.app.model.ScheduleData
+import com.example.app.model.Schedule
 import com.example.app.ui.components.DropdownMenu
 import com.example.app.ui.components.ScheduleSection
 import com.example.app.ui.theme.AppTheme
 import com.example.app.ui.theme.MontserratFamily
 import com.example.app.ui.theme.Orange
+import com.example.app.ui.theme.OrangeDeep
 import com.example.app.ui.theme.Peach
 import com.example.app.viewmodel.PlacesViewModel
 import com.example.app.viewmodel.UsersViewModel
@@ -45,7 +46,7 @@ fun CreatePlaceForm(
 ) {
     var placeName by rememberSaveable { mutableStateOf("") }
     var description by rememberSaveable { mutableStateOf("") }
-    var schedules by rememberSaveable { mutableStateOf(listOf<ScheduleData>()) }
+    var schedules by rememberSaveable { mutableStateOf(listOf<Schedule>()) }
     var phone by rememberSaveable { mutableStateOf("") }
     var city by rememberSaveable { mutableStateOf("") }
     var address by rememberSaveable { mutableStateOf("") }
@@ -58,14 +59,29 @@ fun CreatePlaceForm(
     val cities = listOf("Armenia", "Pereira", "Cartagena", "Medellín", "Barranquilla", "Bogotá")
     
     val isFormValid = remember(placeName, description, schedules, phone, city, address, category) {
+        val daysOfWeek = listOf("Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo")
+        
         val valid = placeName.isNotBlank() && description.isNotBlank() && 
                      schedules.isNotEmpty() && phone.isNotBlank() && 
                      city.isNotBlank() && address.isNotBlank() && category.isNotBlank() &&
                      schedules.all { schedule ->
-                         schedule.day.isNotBlank() && 
-                         schedule.openTime.isNotBlank() && 
-                         schedule.closeTime.isNotBlank() &&
-                         schedule.openTime < schedule.closeTime
+                         val openDayIndex = daysOfWeek.indexOf(schedule.openDay)
+                         val closeDayIndex = daysOfWeek.indexOf(schedule.closeDay)
+                         
+                         val isScheduleComplete = schedule.openDay.isNotBlank() && 
+                                                 schedule.openTime.isNotBlank() && 
+                                                 schedule.closeDay.isNotBlank() &&
+                                                 schedule.closeTime.isNotBlank()
+                         
+                         val isScheduleValid = if (openDayIndex == closeDayIndex) {
+                             // Mismo día: hora de cierre debe ser mayor
+                             schedule.openTime < schedule.closeTime
+                         } else {
+                             // Días diferentes: día de cierre debe ser posterior
+                             openDayIndex < closeDayIndex
+                         }
+                         
+                         isScheduleComplete && isScheduleValid
                      }
         // Debug logs
         println("=== VALIDACIÓN FORMULARIO ===")
@@ -77,11 +93,18 @@ fun CreatePlaceForm(
         println("category: '$category' -> ${category.isNotBlank()}")
         println("schedules.size: ${schedules.size}")
         schedules.forEachIndexed { index, schedule ->
-            val scheduleValid = schedule.day.isNotBlank() && 
-                               schedule.openTime.isNotBlank() && 
-                               schedule.closeTime.isNotBlank() &&
-                               schedule.openTime < schedule.closeTime
-            println("  Schedule $index: day='${schedule.day}' open='${schedule.openTime}' close='${schedule.closeTime}' -> valid=$scheduleValid")
+            val openDayIndex = daysOfWeek.indexOf(schedule.openDay)
+            val closeDayIndex = daysOfWeek.indexOf(schedule.closeDay)
+            val isScheduleComplete = schedule.openDay.isNotBlank() && 
+                                     schedule.openTime.isNotBlank() && 
+                                     schedule.closeDay.isNotBlank() &&
+                                     schedule.closeTime.isNotBlank()
+            val isScheduleValid = if (openDayIndex == closeDayIndex) {
+                schedule.openTime < schedule.closeTime
+            } else {
+                openDayIndex < closeDayIndex
+            }
+            println("  Schedule $index: ${schedule.openDay} ${schedule.openTime} - ${schedule.closeDay} ${schedule.closeTime} -> complete=$isScheduleComplete, valid=$isScheduleValid")
         }
         println("isFormValid: $valid")
         println("===========================")
@@ -340,12 +363,12 @@ fun CreatePlaceForm(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(52.dp),
-                    shape = RoundedCornerShape(12.dp),
+                    shape = RoundedCornerShape(15.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = Orange,
-                        disabledContainerColor = Peach,
+                        containerColor = if (isFormValid) OrangeDeep else Peach,
                         contentColor = Color.White,
-                        disabledContentColor = Color.White.copy(alpha = 0.7f)
+                        disabledContainerColor = Peach,
+                        disabledContentColor = Color.White
                     )
                 ) {
                     Text(
@@ -366,7 +389,15 @@ fun CreatePlaceForm(
         ) {
             SnackbarHost(
                 hostState = snackbarHostState,
-                modifier = Modifier.align(Alignment.BottomCenter)
+                modifier = Modifier.align(Alignment.BottomCenter),
+                snackbar = { snackbarData ->
+                    Snackbar(
+                        snackbarData = snackbarData,
+                        containerColor = Orange,
+                        contentColor = Color.White,
+                        actionColor = Color.White
+                    )
+                }
             )
         }
     }

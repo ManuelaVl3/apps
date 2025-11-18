@@ -265,14 +265,18 @@ fun PlaceDetail(
                                         horizontalArrangement = Arrangement.SpaceBetween
                                     ) {
                                         Text(
-                                            text = schedule.day,
+                                            text = if (schedule.openDay == schedule.closeDay) {
+                                                schedule.openDay
+                                            } else {
+                                                "${schedule.openDay} - ${schedule.closeDay}"
+                                            },
                                             fontSize = 14.sp,
                                             color = MaterialTheme.colorScheme.onBackground,
                                             fontFamily = MontserratFamily,
                                             modifier = Modifier.weight(1f)
                                         )
                                         Text(
-                                            text = "${schedule.open} - ${schedule.close}",
+                                            text = "${schedule.openTime} - ${schedule.closeTime}",
                                             fontSize = 14.sp,
                                             color = MaterialTheme.colorScheme.onBackground,
                                             fontFamily = MontserratFamily

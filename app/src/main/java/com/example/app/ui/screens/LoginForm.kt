@@ -125,15 +125,15 @@ fun LoginForm(
                         if(email == "manuela@email.com" && password == "1234567890*"){
                             //snackbarHostState.showSnackbar(successMessage)
                             delay(500)
-                            onLoginSuccess("1") // ID de Manuela
+                            onLoginSuccess("1")
                         }else if(email == "moderador@mod.com" && password == "0987654321!"){
                             //snackbarHostState.showSnackbar(successMessage)
                             delay(500)
-                            onAdminLoginSuccess("3") // ID de Moderador
+                            onAdminLoginSuccess("3")
                         }else if(email == "pascal@email.com" && password == "1234567890)"){
                             //snackbarHostState.showSnackbar(successMessage)
                             delay(500)
-                            onLoginSuccess("2") // ID de Pascal
+                            onLoginSuccess("2")
                         }else{
                             snackbarHostState.showSnackbar(errorMessage)
                         }

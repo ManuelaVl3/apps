@@ -1,7 +1,8 @@
 package com.example.app.model
 
 data class Schedule(
-    val day: String = "",
-    val open: String = "",
-    val close: String = ""
+    val openDay: String = "",
+    val openTime: String = "",
+    val closeDay: String = "",
+    val closeTime: String = ""
 )

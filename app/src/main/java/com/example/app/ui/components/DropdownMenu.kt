@@ -115,6 +115,7 @@ fun DropdownMenu(
                     text = { Text(option) },
                     onClick = {
                         selectedItem = option
+                        onValueChange(option)
                         onSelectionChange(option)
                         expanded = false
                     }

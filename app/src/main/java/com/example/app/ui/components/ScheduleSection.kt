@@ -13,22 +13,21 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.app.R
-import com.example.app.model.ScheduleData
+import com.example.app.model.Schedule
 import com.example.app.ui.theme.MontserratFamily
 import com.example.app.ui.theme.Orange
 import com.example.app.ui.theme.Peach
 
 @Composable
 fun ScheduleSection(
-    schedules: List<ScheduleData>,
-    onSchedulesChange: (List<ScheduleData>) -> Unit,
+    schedules: List<Schedule>,
+    onSchedulesChange: (List<Schedule>) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
         modifier = modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        // Título de la sección
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -42,12 +41,12 @@ fun ScheduleSection(
                 fontFamily = MontserratFamily
             )
             
-            // Botón para agregar horario
             Button(
                 onClick = {
-                    val newSchedule = ScheduleData(
-                        day = "",
+                    val newSchedule = Schedule(
+                        openDay = "",
                         openTime = "",
+                        closeDay = "",
                         closeTime = ""
                     )
                     onSchedulesChange(schedules + newSchedule)
@@ -72,7 +71,6 @@ fun ScheduleSection(
             }
         }
         
-        // Lista de horarios
         if (schedules.isEmpty()) {
             Text(
                 text = "No hay horarios configurados",
@@ -96,8 +94,63 @@ fun ScheduleSection(
                             removeAt(index) 
                         }
                         onSchedulesChange(updatedSchedules)
-                    }
+                    },
+                    existingSchedules = schedules
                 )
+            }
+            
+            val completeSchedules = schedules.filter {
+                it.openDay.isNotBlank() && it.openTime.isNotBlank() && 
+                it.closeDay.isNotBlank() && it.closeTime.isNotBlank() 
+            }
+            
+            if (completeSchedules.isNotEmpty()) {
+                Spacer(Modifier.height(8.dp))
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(
+                        containerColor = Orange.copy(alpha = 0.1f)
+                    ),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Column(
+                        modifier = Modifier.padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Text(
+                            text = "Resumen de horarios",
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Orange,
+                            fontFamily = MontserratFamily
+                        )
+                        
+                        completeSchedules.forEach { schedule ->
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text(
+                                    text = if (schedule.openDay == schedule.closeDay) {
+                                        schedule.openDay
+                                    } else {
+                                        "${schedule.openDay} - ${schedule.closeDay}"
+                                    },
+                                    fontSize = 13.sp,
+                                    fontWeight = FontWeight.Medium,
+                                    color = MaterialTheme.colorScheme.onBackground,
+                                    fontFamily = MontserratFamily
+                                )
+                                Text(
+                                    text = "${schedule.openTime} - ${schedule.closeTime}",
+                                    fontSize = 13.sp,
+                                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.8f),
+                                    fontFamily = MontserratFamily
+                                )
+                            }
+                        }
+                    }
+                }
             }
         }
     }
