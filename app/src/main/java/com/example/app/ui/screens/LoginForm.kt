@@ -33,12 +33,13 @@ import com.example.app.ui.components.InputText
 fun LoginForm(
     onRegister: () -> Unit = {},
     onLoginSuccess: (String) -> Unit = {},
-    onAdminLoginSuccess: (String) -> Unit = {}
+    onAdminLoginSuccess: (String) -> Unit = {},
+    onForgotPassword: () -> Unit = {}
 ) {
     val peachBorder = Color(0xFFFFCCBC)
 
-    var email by rememberSaveable { mutableStateOf("") }
-    var password by rememberSaveable { mutableStateOf("") }
+    var email by rememberSaveable { mutableStateOf("manuela@email.com") }
+    var password by rememberSaveable { mutableStateOf("1234567890*") }
     var passwordVisible by rememberSaveable { mutableStateOf(false) }
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
@@ -166,7 +167,8 @@ fun LoginForm(
 
             Text(
                 text = stringResource(R.string.login_forgot_password),
-                color = MaterialTheme.colorScheme.onBackground
+                color = MaterialTheme.colorScheme.onBackground,
+                modifier = Modifier.clickable { onForgotPassword() }
             )
 
             Spacer(Modifier.height(16.dp))

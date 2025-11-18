@@ -71,6 +71,10 @@ fun ContentUser(
             )
         }
         
+        composable<RouteTab.Friends> {
+            com.example.app.ui.screens.user.Friends()
+        }
+        
         composable<RouteTab.Profile> {
             EditProfile(
                 userName = user?.name ?: "Usuario",

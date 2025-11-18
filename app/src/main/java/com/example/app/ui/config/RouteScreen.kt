@@ -13,6 +13,9 @@ sealed class RouteScreen {
     data object Register : RouteScreen()
     
     @Serializable
+    data object ForgotPassword : RouteScreen()
+    
+    @Serializable
     data class HomeUser(val userId: String) : RouteScreen()
     
 

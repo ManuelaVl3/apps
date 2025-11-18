@@ -28,7 +28,8 @@ fun Navigation() {
             LoginForm(
                 onRegister = { navController.navigate(RouteScreen.Register) },
                 onLoginSuccess = { userId -> navController.navigate(RouteScreen.HomeUser(userId)) },
-                onAdminLoginSuccess = { userId -> navController.navigate(RouteScreen.HomeAdmin(userId)) }
+                onAdminLoginSuccess = { userId -> navController.navigate(RouteScreen.HomeAdmin(userId)) },
+                onForgotPassword = { navController.navigate(RouteScreen.ForgotPassword) }
             )
         }
         
@@ -36,6 +37,12 @@ fun Navigation() {
             RegisterForm(
                 onRegister = { },
                 onLoginClick = { navController.navigate(RouteScreen.Login) }
+            )
+        }
+        
+        composable<RouteScreen.ForgotPassword> {
+            ForgotPassword(
+                onBack = { navController.navigate(RouteScreen.Login) }
             )
         }
         

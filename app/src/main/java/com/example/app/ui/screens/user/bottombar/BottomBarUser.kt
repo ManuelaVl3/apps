@@ -6,6 +6,7 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Group
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -29,6 +30,7 @@ enum class Destination(val titleResId: Int, val icon: ImageVector, val route: Ro
     Map(R.string.home, Icons.Default.Home, RouteTab.Map),
     Search(R.string.search, Icons.Default.Search, RouteTab.Search),
     Places(R.string.my_places, Icons.Default.LocationOn, RouteTab.Places),
+    Friends(R.string.friends, Icons.Default.Group, RouteTab.Friends),
     Profile(R.string.profile, Icons.Default.Person, RouteTab.Profile)
 }
 

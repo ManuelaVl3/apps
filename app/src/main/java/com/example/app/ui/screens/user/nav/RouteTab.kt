@@ -13,6 +13,9 @@ sealed class RouteTab {
     data object Places : RouteTab()
 
     @Serializable
+    data object Friends : RouteTab()
+
+    @Serializable
     data object Profile : RouteTab()
     
     @Serializable
