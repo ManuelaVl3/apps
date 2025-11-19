@@ -15,14 +15,18 @@ import kotlinx.coroutines.tasks.await
 import kotlin.String
 
 class UsersViewModel : ViewModel() {
-
+    val db = Firebase.firestore
     private val _users = MutableStateFlow(emptyList<User>())
     val users: StateFlow<List<User>> = _users.asStateFlow()
 
     private val _userResult = MutableStateFlow<RequestResult?>(null)
     val userResult: StateFlow<RequestResult?> = _userResult.asStateFlow()
 
-    val db = Firebase.firestore
+    private val _currentUser = MutableStateFlow<User?>(null)
+    val currentUser: StateFlow<User?> = _currentUser.asStateFlow()
+
+    private val _userLogged = MutableStateFlow<User?>(null)
+    val userLogged: StateFlow<User?> = _userLogged.asStateFlow()
 
     init {
         loadUsers()
@@ -88,16 +92,60 @@ class UsersViewModel : ViewModel() {
         return _users.value.find { it.userId == userId }
     }
 
-    fun findByUserId(userId: String): User? {
-        return _users.value.find { it.userId == userId }
+    fun findByUserId(userId: String) {
+        viewModelScope.launch {
+            _userResult.value = RequestResult.Loading
+            _userResult.value = runCatching {
+                findByUserIdFirebase(userId)
+            }.fold(
+                onSuccess = { RequestResult.Success("User got successfully") },
+                onFailure = { RequestResult.Failure(it.message ?: "Error getting user") }
+            )
+        }
+    }
+
+    private suspend fun findByUserIdFirebase(userId: String) {
+        val snapshot = db.collection("users").document(userId).get().await()
+
+        val user = snapshot.toObject(User::class.java)?.apply {
+            this.userId = userId
+        }
+
+        _currentUser.value = user
     }
 
     fun findByEmail(email: String): User? {
         return _users.value.find { it.email == email }
     }
 
-    fun login(email: String, password: String): User? {
-        return _users.value.find { it.email == email && it.password == password }
+    fun login(email: String, password: String) {
+        viewModelScope.launch {
+            _userResult.value = RequestResult.Loading
+            _userResult.value = runCatching {
+                loginFirebase(email, password)
+            }.fold(
+                onSuccess = { RequestResult.Success("login successfully") },
+                onFailure = { RequestResult.Failure(it.message ?: "Error login") }
+            )
+        }
+    }
+
+    private suspend fun loginFirebase(email: String, password: String) {
+        val snapshot = db.collection("users")
+            .whereEqualTo("email", email)
+            .whereEqualTo("password", password)
+            .get()
+            .await()
+
+        if (snapshot.documents.isEmpty()) throw Exception("User or password incorrect")
+
+        snapshot.documents.mapNotNull {
+            val user = it.toObject(User::class.java)?.apply {
+                this.userId = it.id
+            }
+
+            _userLogged.value = user
+        }
     }
 
     fun updateUser(

@@ -19,6 +19,9 @@ fun HomeAdmin(
     val navController = rememberNavController()
     val usersViewModel = remember { UsersViewModel() }
     val placesViewModel = remember { com.example.app.viewmodel.PlacesViewModel() }
+
+    val userLogged by usersViewModel.currentUser.collectAsState()
+
     
     val user = usersViewModel.findByUserId(userId)
     
@@ -30,7 +33,7 @@ fun HomeAdmin(
         ContentAdmin(
             padding = paddingValues,
             navController = navController,
-            user = user,
+            user = userLogged,
             placesViewModel = placesViewModel,
             onLogout = onLogout
         )

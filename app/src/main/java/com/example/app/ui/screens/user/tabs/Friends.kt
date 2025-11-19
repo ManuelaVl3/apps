@@ -176,7 +176,7 @@ fun Friends(
                                 user = user,
                                 isFriend = false,
                                 onAddFriend = {
-                                    friendsViewModel.addFriend(userId, user.userId, usersViewModel)
+                                    friendsViewModel.addFriend(userId, user.userId)
                                     searchQuery = ""
                                 }
                             )

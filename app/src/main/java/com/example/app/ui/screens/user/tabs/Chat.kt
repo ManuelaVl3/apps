@@ -45,7 +45,10 @@ fun Chat(
     onBack: () -> Unit = {},
     onPlaceClick: (String) -> Unit = {}
 ) {
-    val friend = usersViewModel.findByUserId(friendId)
+    usersViewModel.findByUserId(friendId)
+
+    val friend by usersViewModel.currentUser.collectAsState()
+
     var messageText by remember { mutableStateOf("") }
     var showShareDialog by remember { mutableStateOf(false) }
     var showSharedPlacesHistory by remember { mutableStateOf(false) }
@@ -473,7 +476,9 @@ private fun SharedPlacesHistoryDialog(
     onDismiss: () -> Unit,
     onPlaceClick: (String) -> Unit
 ) {
-    val friend = usersViewModel.findByUserId(friendId)
+    usersViewModel.findByUserId(friendId)
+    val friend by usersViewModel.currentUser.collectAsState()
+
     val currentUser = usersViewModel.findByUserId(userId)
     AlertDialog(
         onDismissRequest = onDismiss,

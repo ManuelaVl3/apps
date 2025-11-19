@@ -33,8 +33,8 @@ fun HomeUser(
     val navController = rememberNavController()
     val placesViewModel = remember { PlacesViewModel() }
     val usersViewModel = remember { UsersViewModel() }
-    
-    val user = usersViewModel.findByUserId(userId)
+    usersViewModel.findByUserId(userId)
+    val user by usersViewModel.userLogged.collectAsState()
     
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination?.route

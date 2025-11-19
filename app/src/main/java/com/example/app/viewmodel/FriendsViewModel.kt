@@ -1,5 +1,7 @@
 package com.example.app.viewmodel
 
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.lifecycle.ViewModel
 import com.example.app.model.Friend
 import com.example.app.model.FriendStatus
@@ -35,14 +37,7 @@ class FriendsViewModel : ViewModel() {
         }
     }
 
-    fun addFriend(userId: String, friendId: String, usersViewModel: com.example.app.viewmodel.UsersViewModel): Boolean {
-        // Verificar que el usuario a agregar no sea moderador
-        val friendUser = usersViewModel.findByUserId(friendId)
-        if (friendUser?.role == com.example.app.model.Role.ADMIN) {
-            return false // No se pueden agregar moderadores como amigos
-        }
-        
-        // Verificar que no exista ya la amistad
+    fun addFriend(userId: String, friendId: String): Boolean {
         val existing = _friends.value.find { 
             (it.userId == userId && it.friendId == friendId) ||
             (it.userId == friendId && it.friendId == userId)

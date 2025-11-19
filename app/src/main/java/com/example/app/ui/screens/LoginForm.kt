@@ -22,12 +22,16 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.app.R
+import com.example.app.model.Role
 import com.example.app.ui.theme.ErrorColor
 import com.example.app.ui.theme.Orange
 import com.example.app.ui.theme.OrangeDeep
 import com.example.app.ui.theme.Peach
 import com.example.app.ui.components.InputText
+import com.example.app.ui.components.OperationResultHandler
+import com.example.app.viewmodel.UsersViewModel
 
 @Composable
 fun LoginForm(
@@ -42,9 +46,11 @@ fun LoginForm(
     var password by rememberSaveable { mutableStateOf("0987654321!") }
     var passwordVisible by rememberSaveable { mutableStateOf(false) }
     val snackbarHostState = remember { SnackbarHostState() }
-    val scope = rememberCoroutineScope()
 
     val errorMessage = stringResource(R.string.login_error)
+
+    val usersViewModel: UsersViewModel = remember { UsersViewModel() }
+    val userResult by usersViewModel.userResult.collectAsState()
     
     fun isValidEmail(email: String): Boolean {
         val emailPattern = android.util.Patterns.EMAIL_ADDRESS
@@ -122,20 +128,7 @@ fun LoginForm(
 
             Button(
                 onClick = {
-                    scope.launch {
-                        if(email == "manuela@email.com" && password == "1234567890*"){
-                            delay(500)
-                            onLoginSuccess("1")
-                        }else if((email == "moderador@mod.com" || email == "moderador@email.com") && password == "0987654321!"){
-                            delay(500)
-                            onAdminLoginSuccess("3")
-                        }else if(email == "pascal@email.com" && password == "1234567890)"){
-                            delay(500)
-                            onLoginSuccess("2")
-                        }else{
-                            snackbarHostState.showSnackbar(errorMessage)
-                        }
-                    }
+                    usersViewModel.login(email, password)
                 },
                 enabled = isFormValid,
                 modifier = Modifier
@@ -153,6 +146,22 @@ fun LoginForm(
             }
 
             Spacer(Modifier.height(50.dp))
+
+            OperationResultHandler(
+                requestResult = userResult,
+                onSuccess = {
+                    val userLogged = usersViewModel.userLogged.value!!
+                    when (userLogged.role) {
+                        Role.USER -> onLoginSuccess(userLogged.userId)
+                        Role.ADMIN -> onAdminLoginSuccess(userLogged.userId)
+                    }
+                },
+                onFailure = {
+                    usersViewModel.resetOperationResult()
+                }
+            )
+
+            Spacer(Modifier.height(30.dp))
 
             Text(
                 text = stringResource(R.string.login_register_link),
