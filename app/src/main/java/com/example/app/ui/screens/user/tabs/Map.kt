@@ -15,7 +15,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -26,7 +25,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.app.R
 import com.example.app.model.PlaceType
-import com.example.app.ui.screens.user.tabs.PlaceCard
 import com.example.app.ui.theme.AppTheme
 import com.example.app.ui.theme.MontserratFamily
 import com.example.app.ui.theme.Orange
@@ -64,7 +62,6 @@ fun Map(
         else -> null
     }
     
-    // Usar ubicación del usuario si está disponible, sino usar ubicación de referencia
     val referenceLocation = remember(userLocation) {
         if (userLocation != null) {
             com.example.app.model.Location(

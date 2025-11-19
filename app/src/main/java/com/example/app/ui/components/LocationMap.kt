@@ -4,7 +4,9 @@ import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
 import android.location.Location
+import android.location.LocationListener
 import android.location.LocationManager
+import android.os.Bundle
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -19,6 +21,7 @@ import com.mapbox.maps.extension.compose.MapEffect
 import com.mapbox.maps.extension.compose.animation.viewport.rememberMapViewportState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeoutOrNull
 
 /**
  * Componente reutilizable del mapa con ubicación del usuario
@@ -56,8 +59,10 @@ fun LocationMap(
             val location = withContext(Dispatchers.IO) {
                 getCurrentLocation(context)
             }
-            userLocation = location
-            onLocationObtained(location)
+            if (location != null) {
+                userLocation = location
+                onLocationObtained(location)
+            }
         }
     }
     
@@ -69,7 +74,7 @@ fun LocationMap(
     val mapViewportState = rememberMapViewportState {
         if (userLocation != null || initialLocation != null) {
             CameraOptions.Builder()
-                .zoom(13.0)
+                .zoom(15.0)
                 .center(mapCenter)
                 .pitch(45.0)
                 .bearing(0.0)
@@ -93,7 +98,7 @@ fun LocationMap(
             val locationToUse = userLocation ?: initialLocation
             if (locationToUse != null) {
                 val cameraOptions = CameraOptions.Builder()
-                    .zoom(13.0)
+                    .zoom(15.0)
                     .center(locationToUse)
                     .pitch(45.0)
                     .bearing(0.0)
@@ -107,15 +112,12 @@ fun LocationMap(
     }
 }
 
-/**
- * Función para obtener la ubicación actual del usuario
- */
+
 private suspend fun getCurrentLocation(context: Context): Point? {
     return withContext(Dispatchers.IO) {
         try {
             val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
             
-            // Verificar si el GPS está habilitado
             val isGpsEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
             val isNetworkEnabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
             
@@ -125,7 +127,6 @@ private suspend fun getCurrentLocation(context: Context): Point? {
             
             var location: Location? = null
             
-            // Intentar obtener ubicación del GPS primero
             if (isGpsEnabled && ContextCompat.checkSelfPermission(
                     context,
                     Manifest.permission.ACCESS_FINE_LOCATION
@@ -134,13 +135,106 @@ private suspend fun getCurrentLocation(context: Context): Point? {
                 location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
             }
             
-            // Si no hay ubicación del GPS, intentar con la red
             if (location == null && isNetworkEnabled && ContextCompat.checkSelfPermission(
                     context,
                     Manifest.permission.ACCESS_COARSE_LOCATION
                 ) == PackageManager.PERMISSION_GRANTED
             ) {
                 location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
+            }
+            
+            if (location == null) {
+                val locationResult = kotlinx.coroutines.CompletableDeferred<Location?>()
+                
+                val locationListener = object : LocationListener {
+                    override fun onLocationChanged(loc: Location) {
+                        locationResult.complete(loc)
+                        try {
+                            if (isGpsEnabled && ContextCompat.checkSelfPermission(
+                                    context,
+                                    Manifest.permission.ACCESS_FINE_LOCATION
+                                ) == PackageManager.PERMISSION_GRANTED
+                            ) {
+                                locationManager.removeUpdates(this)
+                            } else if (isNetworkEnabled && ContextCompat.checkSelfPermission(
+                                    context,
+                                    Manifest.permission.ACCESS_COARSE_LOCATION
+                                ) == PackageManager.PERMISSION_GRANTED
+                            ) {
+                                locationManager.removeUpdates(this)
+                            }
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                        }
+                    }
+                    
+                    override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {}
+                    override fun onProviderEnabled(provider: String) {}
+                    override fun onProviderDisabled(provider: String) {}
+                }
+                
+                try {
+                    if (isGpsEnabled && ContextCompat.checkSelfPermission(
+                            context,
+                            Manifest.permission.ACCESS_FINE_LOCATION
+                        ) == PackageManager.PERMISSION_GRANTED
+                    ) {
+                        locationManager.requestLocationUpdates(
+                            LocationManager.GPS_PROVIDER,
+                            0L,
+                            0f,
+                            locationListener
+                        )
+                    } else if (isNetworkEnabled && ContextCompat.checkSelfPermission(
+                            context,
+                            Manifest.permission.ACCESS_COARSE_LOCATION
+                        ) == PackageManager.PERMISSION_GRANTED
+                    ) {
+                        locationManager.requestLocationUpdates(
+                            LocationManager.NETWORK_PROVIDER,
+                            0L,
+                            0f,
+                            locationListener
+                        )
+                    }
+                    
+                    location = withTimeoutOrNull(5000) {
+                        locationResult.await()
+                    }
+                    
+                    try {
+                        if (ContextCompat.checkSelfPermission(
+                                context,
+                                Manifest.permission.ACCESS_FINE_LOCATION
+                            ) == PackageManager.PERMISSION_GRANTED ||
+                            ContextCompat.checkSelfPermission(
+                                context,
+                                Manifest.permission.ACCESS_COARSE_LOCATION
+                            ) == PackageManager.PERMISSION_GRANTED
+                        ) {
+                            locationManager.removeUpdates(locationListener)
+                        }
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    try {
+                        if (ContextCompat.checkSelfPermission(
+                                context,
+                                Manifest.permission.ACCESS_FINE_LOCATION
+                            ) == PackageManager.PERMISSION_GRANTED ||
+                            ContextCompat.checkSelfPermission(
+                                context,
+                                Manifest.permission.ACCESS_COARSE_LOCATION
+                            ) == PackageManager.PERMISSION_GRANTED
+                        ) {
+                            locationManager.removeUpdates(locationListener)
+                        }
+                    } catch (ex: Exception) {
+                        ex.printStackTrace()
+                    }
+                }
             }
             
             location?.let {
