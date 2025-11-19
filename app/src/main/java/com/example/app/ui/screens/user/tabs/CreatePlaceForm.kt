@@ -18,6 +18,7 @@ import kotlinx.coroutines.launch
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.AddPhotoAlternate
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.ModeEdit
 import androidx.compose.material3.*
@@ -50,6 +51,7 @@ import com.example.app.ui.theme.OrangeDeep
 import com.example.app.ui.theme.Peach
 import com.example.app.viewmodel.PlacesViewModel
 import com.example.app.viewmodel.UsersViewModel
+import com.example.app.ui.components.LocationMap
 import kotlinx.coroutines.Dispatchers
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -92,6 +94,8 @@ fun CreatePlaceForm(
     var isEditingAddress by rememberSaveable { mutableStateOf(!isEditMode) }
     var isEditingCategory by rememberSaveable { mutableStateOf(!isEditMode) }
     var isEditingSchedules by rememberSaveable { mutableStateOf(!isEditMode) }
+
+    var showMapDialog by remember { mutableStateOf(false) }
 
     var originalPlaceName by remember { mutableStateOf("") }
     var originalDescription by remember { mutableStateOf("") }
@@ -528,7 +532,8 @@ fun CreatePlaceForm(
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(300.dp),
+                            .height(200.dp)
+                            .clickable { showMapDialog = true },
                         shape = RoundedCornerShape(12.dp),
                         colors = CardDefaults.cardColors(
                             containerColor = Color.Transparent
@@ -538,26 +543,30 @@ fun CreatePlaceForm(
                             Orange.copy(alpha = 0.6f)
                         )
                     ) {
-                        Column(
+                        Box(
                             modifier = Modifier
                                 .fillMaxSize()
-                                .padding(16.dp)
+                                .padding(16.dp),
+                            contentAlignment = Alignment.Center
                         ) {
-                            Text(
-                                text = "Toca para seleccionar ubicación",
-                                fontSize = 14.sp,
-                                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f),
-                                fontFamily = MontserratFamily
-                            )
-                            Spacer(Modifier.height(8.dp))
-                            Image(
-                                painter = painterResource(id = R.drawable.map),
-                                contentDescription = "Mapa",
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(250.dp),
-                                contentScale = ContentScale.Crop
-                            )
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.Center
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.LocationOn,
+                                    contentDescription = "Abrir mapa",
+                                    tint = Orange,
+                                    modifier = Modifier.size(48.dp)
+                                )
+                                Spacer(Modifier.height(8.dp))
+                                Text(
+                                    text = "Toca para abrir el mapa",
+                                    fontSize = 14.sp,
+                                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f),
+                                    fontFamily = MontserratFamily
+                                )
+                            }
                         }
                     }
                 }
@@ -695,6 +704,70 @@ fun CreatePlaceForm(
                         actionColor = Color.White
                     )
                 }
+            )
+        }
+
+        // Diálogo del mapa
+        if (showMapDialog) {
+            AlertDialog(
+                onDismissRequest = { showMapDialog = false },
+                title = {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "Seleccionar ubicación",
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold,
+                            fontFamily = MontserratFamily
+                        )
+                        IconButton(
+                            onClick = { showMapDialog = false }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Close,
+                                contentDescription = "Cerrar",
+                                tint = MaterialTheme.colorScheme.onBackground
+                            )
+                        }
+                    }
+                },
+                text = {
+                    LocationMap(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(500.dp)
+                    )
+                },
+                confirmButton = {
+                    Button(
+                        onClick = { showMapDialog = false },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = OrangeDeep
+                        ),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Text(
+                            text = "Confirmar",
+                            fontFamily = MontserratFamily,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
+                },
+                dismissButton = {
+                    TextButton(
+                        onClick = { showMapDialog = false }
+                    ) {
+                        Text(
+                            text = "Cancelar",
+                            fontFamily = MontserratFamily,
+                            color = MaterialTheme.colorScheme.onBackground
+                        )
+                    }
+                },
+                shape = RoundedCornerShape(20.dp)
             )
         }
     }

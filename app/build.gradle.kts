@@ -64,6 +64,10 @@ dependencies {
     implementation(libs.android.navigation.compose)
     implementation(libs.kotlin.serialization.json)
     implementation(libs.coil.compose)
+
+    implementation(libs.maps.android)
+    implementation(libs.maps.compose)
+
     implementation(libs.firebase.firestore)
     implementation(libs.cloudinary.android)
 

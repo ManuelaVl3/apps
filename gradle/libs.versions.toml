@@ -13,6 +13,7 @@ navigation-compose = "2.8.0"
 kotlinx-serialization-json = "1.6.3"
 coil-compose = "2.7.0"
 googleGmsGoogleServices = "4.4.4"
+mapsCompose = "11.11.0"
 firebaseFirestore = "26.0.2"
 cloudinary="3.0.2"
 
@@ -35,6 +36,8 @@ activity-compose = { group = "androidx.activity", name = "activity-compose", ver
 android-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigation-compose" }
 kotlin-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinx-serialization-json" }
 coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil-compose" }
+maps-android = { module = "com.mapbox.maps:android", version.ref = "mapsCompose"}
+maps-compose = { module = "com.mapbox.extension:maps-compose", version.ref = "mapsCompose"}
 firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore", version.ref = "firebaseFirestore" }
 cloudinary-android = { group = "com.cloudinary", name = "cloudinary-android", version.ref = "cloudinary" }
 

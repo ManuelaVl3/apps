@@ -5,9 +5,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
@@ -33,7 +31,11 @@ import com.example.app.ui.theme.AppTheme
 import com.example.app.ui.theme.MontserratFamily
 import com.example.app.ui.theme.Orange
 import com.example.app.viewmodel.PlacesViewModel
+import com.example.app.ui.components.LocationMap
+import com.mapbox.geojson.Point
+import androidx.compose.ui.ExperimentalComposeUiApi
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun Map(
     placesViewModel: PlacesViewModel = remember { PlacesViewModel() },
@@ -45,6 +47,8 @@ fun Map(
     var selectedCategory by remember { mutableStateOf("") }
     var showDistanceMenu by remember { mutableStateOf(false) }
     var selectedDistance by remember { mutableStateOf("") }
+    
+    var userLocation by remember { mutableStateOf<Point?>(null) }
     
     val categories = listOf("Restaurantes", "Comidas rápidas", "Cafetería", "Museos", "Hoteles")
     val distances = (1..10).map { "$it km" }
@@ -60,13 +64,20 @@ fun Map(
         else -> null
     }
     
-    // Ubicación de referencia (Armenia, Quindío - centro de la ciudad) TEMPORAL
-    val referenceLocation = remember { 
-        com.example.app.model.Location("ref", 4.5339, -75.6811) 
+    // Usar ubicación del usuario si está disponible, sino usar ubicación de referencia
+    val referenceLocation = remember(userLocation) {
+        if (userLocation != null) {
+            com.example.app.model.Location(
+                "user_location",
+                userLocation!!.latitude(),
+                userLocation!!.longitude()
+            )
+        } else {
+            com.example.app.model.Location("ref", 4.5339, -75.6811)
+        }
     }
     
     val filteredPlaces = remember(searchQuery, selectedPlaceType, selectedDistance, allPlaces) {
-        // Filtrar solo lugares autorizados para usuarios
         var results = allPlaces.filter { it.status == com.example.app.model.PlaceStatus.AUTHORIZED }
         
         if (searchQuery.isNotBlank()) {
@@ -408,7 +419,6 @@ fun Map(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .verticalScroll(rememberScrollState())
                     .padding(24.dp),
                 horizontalAlignment = Alignment.Start,
                 verticalArrangement = Arrangement.Top
@@ -534,14 +544,13 @@ fun Map(
 
             Spacer(Modifier.height(32.dp))
 
-            Image(
-                painter = painterResource(id = R.drawable.map),
-                contentDescription = "Mapa",
+            LocationMap(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(256.dp)
-                    .clip(RoundedCornerShape(20.dp)),
-                contentScale = ContentScale.Crop
+                    .height(400.dp),
+                onLocationObtained = { location ->
+                    userLocation = location
+                }
             )
 
             Spacer(Modifier.height(24.dp))
@@ -598,6 +607,7 @@ private fun LocationCard(
         }
     }
 }
+
 
 @Preview(showBackground = true)
 @Composable
