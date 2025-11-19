@@ -40,12 +40,12 @@ fun Favorites(
     val favorites by favoritesViewModel.favorites.collectAsState()
     val allPlaces by placesViewModel.places.collectAsState()
     
-    // Obtener los lugares favoritos del usuario
+    // Obtener los lugares favoritos del usuario (solo autorizados)
     val favoritePlaces = remember(favorites, allPlaces, userId) {
         favorites
             .filter { it.userId == userId }
             .mapNotNull { favorite ->
-                allPlaces.find { it.id == favorite.placeId }
+                allPlaces.find { it.id == favorite.placeId && it.status == com.example.app.model.PlaceStatus.AUTHORIZED }
             }
     }
     

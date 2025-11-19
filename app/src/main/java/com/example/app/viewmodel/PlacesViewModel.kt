@@ -3,6 +3,7 @@ package com.example.app.viewmodel
 import androidx.lifecycle.ViewModel
 import com.example.app.model.Location
 import com.example.app.model.Place
+import com.example.app.model.PlaceStatus
 import com.example.app.model.PlaceType
 import com.example.app.model.Schedule
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -38,7 +39,8 @@ class PlacesViewModel: ViewModel() {
                 ),
                 location = Location("loc1", 4.5339, -75.6811),
                 address = "Calle 19 #12-34, Armenia, Quindío",
-                createBy = "1"
+                createBy = "1",
+                status = PlaceStatus.AUTHORIZED
             ),
 
             Place(
@@ -60,6 +62,7 @@ class PlacesViewModel: ViewModel() {
                 location = Location("loc2", 4.5315, -75.6804),
                 address = "Carrera 14 #4-70, Armenia, Quindío",
                 createBy = "2",
+                status = PlaceStatus.AUTHORIZED
             ),
 
             Place(
@@ -81,6 +84,7 @@ class PlacesViewModel: ViewModel() {
                 location = Location("loc3", 4.5368, -75.6825),
                 address = "Carrera 14 #21-15, Armenia, Quindío",
                 createBy = "1",
+                status = PlaceStatus.PENDING
             ),
 
             Place(
@@ -102,6 +106,7 @@ class PlacesViewModel: ViewModel() {
                 location = Location("loc4", 4.5320, -75.6820),
                 address = "Calle 20 #15-25, Armenia, Quindío",
                 createBy = "1",
+                status = PlaceStatus.PENDING
             ),
 
             Place(
@@ -208,6 +213,100 @@ class PlacesViewModel: ViewModel() {
                 location = Location("loc9", 4.5360, -75.6835),
                 address = "Parque Sucre, Armenia, Quindío",
                 createBy = "1",
+                status = PlaceStatus.AUTHORIZED
+            ),
+            
+            // Lugares nuevos para el moderador
+            Place(
+                id = "10",
+                images = listOf("place"),
+                placeName = "BUÑUELOS EL PAISA",
+                description = "Buñuelos tradicionales colombianos",
+                phones = listOf("311 609 7462"),
+                type = PlaceType.FASTFOOD,
+                schedules = listOf(
+                    Schedule("Lunes", "06:00", "Lunes", "20:00"),
+                    Schedule("Martes", "06:00", "Martes", "20:00"),
+                    Schedule("Miércoles", "06:00", "Miércoles", "20:00"),
+                    Schedule("Jueves", "06:00", "Jueves", "20:00"),
+                    Schedule("Viernes", "06:00", "Viernes", "21:00"),
+                    Schedule("Sábado", "06:00", "Sábado", "21:00"),
+                    Schedule("Domingo", "07:00", "Domingo", "19:00")
+                ),
+                location = Location("loc10", 4.5339, -75.6811),
+                address = "Cra 18 #5a - 18",
+                createBy = "1",
+                rating = 5.0,
+                status = PlaceStatus.PENDING
+            ),
+            
+            Place(
+                id = "11",
+                images = listOf("place"),
+                placeName = "BOSCO",
+                description = "Restaurante moderno con ambiente acogedor",
+                phones = listOf("315 222 2222"),
+                type = PlaceType.RESTAURANT,
+                schedules = listOf(
+                    Schedule("Lunes", "12:00", "Lunes", "22:00"),
+                    Schedule("Martes", "12:00", "Martes", "22:00"),
+                    Schedule("Miércoles", "12:00", "Miércoles", "22:00"),
+                    Schedule("Jueves", "12:00", "Jueves", "22:00"),
+                    Schedule("Viernes", "12:00", "Viernes", "23:00"),
+                    Schedule("Sábado", "12:00", "Sábado", "23:00"),
+                    Schedule("Domingo", "12:00", "Domingo", "21:00")
+                ),
+                location = Location("loc11", 4.5339, -75.6811),
+                address = "Cra 17 # 8 - 47",
+                createBy = "2",
+                rating = 2.0,
+                status = PlaceStatus.AUTHORIZED
+            ),
+            
+            Place(
+                id = "12",
+                images = listOf("place"),
+                placeName = "EL COMPADRE",
+                description = "Restaurante con ambiente único",
+                phones = listOf("333 555 7788"),
+                type = PlaceType.RESTAURANT,
+                schedules = listOf(
+                    Schedule("Lunes", "11:00", "Lunes", "23:00"),
+                    Schedule("Martes", "11:00", "Martes", "23:00"),
+                    Schedule("Miércoles", "11:00", "Miércoles", "23:00"),
+                    Schedule("Jueves", "11:00", "Jueves", "23:00"),
+                    Schedule("Viernes", "11:00", "Viernes", "00:00"),
+                    Schedule("Sábado", "11:00", "Sábado", "00:00"),
+                    Schedule("Domingo", "11:00", "Domingo", "22:00")
+                ),
+                location = Location("loc12", 4.5339, -75.6811),
+                address = "Av. 19 #2 N - 68",
+                createBy = "2",
+                rating = 4.0,
+                status = PlaceStatus.AUTHORIZED
+            ),
+            
+            Place(
+                id = "13",
+                images = listOf("place"),
+                placeName = "SOL Y LUNA",
+                description = "Restaurante con decoración temática",
+                phones = listOf("350 555 9874"),
+                type = PlaceType.RESTAURANT,
+                schedules = listOf(
+                    Schedule("Lunes", "12:00", "Lunes", "22:00"),
+                    Schedule("Martes", "12:00", "Martes", "22:00"),
+                    Schedule("Miércoles", "12:00", "Miércoles", "22:00"),
+                    Schedule("Jueves", "12:00", "Jueves", "22:00"),
+                    Schedule("Viernes", "12:00", "Viernes", "23:00"),
+                    Schedule("Sábado", "12:00", "Sábado", "23:00"),
+                    Schedule("Domingo", "12:00", "Domingo", "21:00")
+                ),
+                location = Location("loc13", 4.5339, -75.6811),
+                address = "Av. Centenario #45-12",
+                createBy = "1",
+                rating = 3.0,
+                status = PlaceStatus.AUTHORIZED
             )
         )
     }
@@ -281,6 +380,27 @@ class PlacesViewModel: ViewModel() {
         val c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
         
         return earthRadius * c
+    }
+
+    fun updatePlaceStatus(placeId: String, status: PlaceStatus): Boolean {
+        val currentPlaces = _places.value.toMutableList()
+        val placeIndex = currentPlaces.indexOfFirst { it.id == placeId }
+        
+        if (placeIndex != -1) {
+            val existingPlace = currentPlaces[placeIndex]
+            currentPlaces[placeIndex] = existingPlace.copy(status = status)
+            _places.value = currentPlaces
+            return true
+        }
+        return false
+    }
+
+    fun getPendingPlaces(): List<Place> {
+        return _places.value.filter { it.status == PlaceStatus.PENDING }
+    }
+
+    fun getAllPlacesForAdmin(): List<Place> {
+        return _places.value
     }
 
 }

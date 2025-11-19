@@ -26,6 +26,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.app.R
+import com.example.app.model.PlaceStatus
 import com.example.app.model.Schedule
 import com.example.app.ui.components.DropdownMenu
 import com.example.app.ui.components.ScheduleSection
@@ -574,18 +575,19 @@ fun CreatePlaceForm(
                                 onBack()
                             }
                         } else {
-                            val newPlace = com.example.app.model.Place(
-                                id = java.util.UUID.randomUUID().toString(),
-                                images = listOf("place"),
-                                placeName = placeName,
-                                description = description,
-                                phones = listOf(phone),
-                                type = placeType,
-                                schedules = schedules,
-                                location = location,
-                                address = address,
-                                createBy = userId
-                            )
+                                   val newPlace = com.example.app.model.Place(
+                                       id = java.util.UUID.randomUUID().toString(),
+                                       images = listOf("place"),
+                                       placeName = placeName,
+                                       description = description,
+                                       phones = listOf(phone),
+                                       type = placeType,
+                                       schedules = schedules,
+                                       location = location,
+                                       address = address,
+                                       createBy = userId,
+                                       status = PlaceStatus.PENDING
+                                   )
                             placesViewModel.create(newPlace)
                             scope.launch {
                                 snackbarHostState.showSnackbar("Lugar creado exitosamente")

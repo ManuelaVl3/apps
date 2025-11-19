@@ -3,25 +3,13 @@ package com.example.app.ui.screens.admin
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.sp
 import androidx.navigation.compose.rememberNavController
-import com.example.app.R
 import com.example.app.ui.theme.AppTheme
-import com.example.app.ui.theme.OrangeDeep
-import com.example.app.ui.theme.MontserratFamily
 import com.example.app.ui.screens.admin.nav.ContentAdmin
 import com.example.app.ui.screens.admin.bottombar.BottomBarAdmin
 import com.example.app.viewmodel.UsersViewModel
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeAdmin(
     userId: String = "3",
@@ -30,27 +18,11 @@ fun HomeAdmin(
 ) {
     val navController = rememberNavController()
     val usersViewModel = remember { UsersViewModel() }
+    val placesViewModel = remember { com.example.app.viewmodel.PlacesViewModel() }
     
     val user = usersViewModel.findByUserId(userId)
     
     Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        text = buildAnnotatedString {
-                            withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.onBackground)) {
-                                append(stringResource(R.string.admin_panel_title))
-                            }
-                        },
-                        fontSize = 24.sp,
-                        fontWeight = FontWeight.Bold,
-                        textAlign = TextAlign.Center,
-                        fontFamily = MontserratFamily
-                    )
-                }
-            )
-        },
         bottomBar = {
             BottomBarAdmin(navController = navController)
         }
@@ -59,6 +31,7 @@ fun HomeAdmin(
             padding = paddingValues,
             navController = navController,
             user = user,
+            placesViewModel = placesViewModel,
             onLogout = onLogout
         )
     }

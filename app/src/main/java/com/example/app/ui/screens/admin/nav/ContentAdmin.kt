@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import com.example.app.ui.screens.EditProfile
 import com.example.app.ui.screens.admin.HistoryAdmin
 import com.example.app.ui.screens.admin.AuthorizeAdmin
+import com.example.app.ui.screens.admin.HomeContentAdmin
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Home
@@ -33,6 +34,7 @@ fun ContentAdmin(
     padding: PaddingValues,
     navController: NavHostController,
     user: com.example.app.model.User?,
+    placesViewModel: com.example.app.viewmodel.PlacesViewModel = remember { com.example.app.viewmodel.PlacesViewModel() },
     onLogout: () -> Unit = {}
 ) {
     NavHost(
@@ -41,7 +43,7 @@ fun ContentAdmin(
         startDestination = RouteTabAdmin.Home
     ) {
         composable<RouteTabAdmin.Home> {
-            HomeContentAdmin()
+            HomeContentAdmin(placesViewModel = placesViewModel)
         }
         
         composable<RouteTabAdmin.History> {
@@ -49,7 +51,7 @@ fun ContentAdmin(
         }
         
         composable<RouteTabAdmin.Authorize> {
-            AuthorizeAdmin()
+            AuthorizeAdmin(placesViewModel = placesViewModel)
         }
         
         composable<RouteTabAdmin.Profile> {
@@ -60,35 +62,5 @@ fun ContentAdmin(
                 onLogout = onLogout
             )
         }
-    }
-}
-
-@Composable
-fun HomeContentAdmin() {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        Text(
-            text = stringResource(R.string.admin_panel_main),
-            fontSize = 24.sp,
-            fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onBackground,
-            textAlign = TextAlign.Center,
-            fontFamily = com.example.app.ui.theme.MontserratFamily
-        )
-        
-        Spacer(Modifier.height(16.dp))
-        
-        Text(
-            text = stringResource(R.string.admin_welcome),
-            fontSize = 16.sp,
-            color = MaterialTheme.colorScheme.onBackground,
-            textAlign = TextAlign.Center,
-            fontFamily = com.example.app.ui.theme.MontserratFamily
-        )
     }
 }

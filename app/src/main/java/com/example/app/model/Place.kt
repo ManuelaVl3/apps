@@ -11,6 +11,7 @@ data class Place(
     val location: Location,
     val address: String,
     val createBy: String,
-    val rating: Double = (1..5).random().toDouble()
+    val rating: Double = (1..5).random().toDouble(),
+    val status: PlaceStatus = PlaceStatus.PENDING
 ) {
 }

@@ -65,11 +65,12 @@ fun Map(
         com.example.app.model.Location("ref", 4.5339, -75.6811) 
     }
     
-    val filteredPlaces = remember(searchQuery, selectedPlaceType, selectedDistance) {
-        var results = allPlaces
+    val filteredPlaces = remember(searchQuery, selectedPlaceType, selectedDistance, allPlaces) {
+        // Filtrar solo lugares autorizados para usuarios
+        var results = allPlaces.filter { it.status == com.example.app.model.PlaceStatus.AUTHORIZED }
         
         if (searchQuery.isNotBlank()) {
-            results = placesViewModel.findByName(searchQuery)
+            results = placesViewModel.findByName(searchQuery).filter { it.status == com.example.app.model.PlaceStatus.AUTHORIZED }
         }
         
         if (selectedPlaceType != null) {
