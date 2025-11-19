@@ -9,6 +9,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.ui.platform.LocalContext
 import com.example.app.ui.screens.user.tabs.Map
 import com.example.app.ui.screens.user.tabs.Favorites
 import com.example.app.ui.screens.user.tabs.Places
@@ -95,7 +96,8 @@ fun ContentUser(
                 placesViewModel = placesViewModel,
                 usersViewModel = usersViewModel,
                 placeId = route.placeId,
-                onBack = { navController.popBackStack() }
+                onBack = { navController.popBackStack() },
+                context = LocalContext.current
             )
         }
         

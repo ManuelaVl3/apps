@@ -65,6 +65,7 @@ dependencies {
     implementation(libs.kotlin.serialization.json)
     implementation(libs.coil.compose)
     implementation(libs.firebase.firestore)
+    implementation(libs.cloudinary.android)
 
     debugImplementation(libs.compose.ui.tooling)
     androidTestImplementation(platform(libs.compose.bom))

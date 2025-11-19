@@ -14,6 +14,7 @@ kotlinx-serialization-json = "1.6.3"
 coil-compose = "2.7.0"
 googleGmsGoogleServices = "4.4.4"
 firebaseFirestore = "26.0.2"
+cloudinary="3.0.2"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -35,6 +36,7 @@ android-navigation-compose = { group = "androidx.navigation", name = "navigation
 kotlin-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinx-serialization-json" }
 coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil-compose" }
 firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore", version.ref = "firebaseFirestore" }
+cloudinary-android = { group = "com.cloudinary", name = "cloudinary-android", version.ref = "cloudinary" }
 
 
 [plugins]

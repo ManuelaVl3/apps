@@ -1,6 +1,15 @@
 package com.example.app.ui.screens.user.tabs
 
+import android.Manifest
+import android.content.Context
+import android.content.pm.PackageManager
+import android.net.Uri
+import android.os.Build
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -18,6 +27,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -25,6 +35,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
+import com.cloudinary.Cloudinary
+import com.cloudinary.utils.ObjectUtils
 import com.example.app.R
 import com.example.app.model.PlaceStatus
 import com.example.app.model.Schedule
@@ -37,6 +50,7 @@ import com.example.app.ui.theme.OrangeDeep
 import com.example.app.ui.theme.Peach
 import com.example.app.viewmodel.PlacesViewModel
 import com.example.app.viewmodel.UsersViewModel
+import kotlinx.coroutines.Dispatchers
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -45,39 +59,40 @@ fun CreatePlaceForm(
     placesViewModel: PlacesViewModel,
     usersViewModel: UsersViewModel,
     placeId: String? = null,
-    onBack: () -> Unit = {}
+    onBack: () -> Unit = {},
+    context: Context
 ) {
     val isEditMode = placeId != null
-    
-    var placeName by rememberSaveable { 
-        mutableStateOf("") 
+
+    var placeName by rememberSaveable {
+        mutableStateOf("")
     }
-    var description by rememberSaveable { 
-        mutableStateOf("") 
+    var description by rememberSaveable {
+        mutableStateOf("")
     }
-    var schedules by rememberSaveable { 
-        mutableStateOf(listOf<Schedule>()) 
+    var schedules by rememberSaveable {
+        mutableStateOf(listOf<Schedule>())
     }
-    var phone by rememberSaveable { 
-        mutableStateOf("") 
+    var phone by rememberSaveable {
+        mutableStateOf("")
     }
-    var city by rememberSaveable { 
-        mutableStateOf("") 
+    var city by rememberSaveable {
+        mutableStateOf("")
     }
-    var address by rememberSaveable { 
-        mutableStateOf("") 
+    var address by rememberSaveable {
+        mutableStateOf("")
     }
-    var category by rememberSaveable { 
-        mutableStateOf("") 
+    var category by rememberSaveable {
+        mutableStateOf("")
     }
-    
+
     var isEditingName by rememberSaveable { mutableStateOf(!isEditMode) }
     var isEditingDescription by rememberSaveable { mutableStateOf(!isEditMode) }
     var isEditingPhone by rememberSaveable { mutableStateOf(!isEditMode) }
     var isEditingAddress by rememberSaveable { mutableStateOf(!isEditMode) }
     var isEditingCategory by rememberSaveable { mutableStateOf(!isEditMode) }
     var isEditingSchedules by rememberSaveable { mutableStateOf(!isEditMode) }
-    
+
     var originalPlaceName by remember { mutableStateOf("") }
     var originalDescription by remember { mutableStateOf("") }
     var originalSchedules by remember { mutableStateOf(listOf<Schedule>()) }
@@ -85,7 +100,45 @@ fun CreatePlaceForm(
     var originalCity by remember { mutableStateOf("") }
     var originalAddress by remember { mutableStateOf("") }
     var originalCategory by remember { mutableStateOf("") }
-    
+
+
+    var image by remember { mutableStateOf("") }
+
+    val config = mapOf(
+        "cloud_name" to "de7r8evyp",
+        "api_key" to "949331115833953",
+        "api_secret" to "NAq_-Oo-aXcY9jyUd1Ipbz4k0o4"
+    )
+
+    val scope = rememberCoroutineScope()
+    val cloudinary = Cloudinary(config)
+
+    val fileLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        uri?.let {
+            scope.launch(Dispatchers.IO) {
+                val inputStream = context.contentResolver.openInputStream(it)
+                inputStream?.use { stream ->
+                    val result = cloudinary.uploader().upload(stream, ObjectUtils.emptyMap())
+                    val imageUrl = result["secure_url"] as String
+                    image = imageUrl
+                }
+            }
+        }
+    }
+
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) {
+        if (it) {
+            Toast.makeText(context, "Permission Granted", Toast.LENGTH_SHORT).show()
+        } else {
+            Toast.makeText(context, "Permission Denied", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+
     LaunchedEffect(placeId) {
         placeId?.let { id ->
             val place = placesViewModel.findByPlaceId(id)
@@ -103,7 +156,7 @@ fun CreatePlaceForm(
                     com.example.app.model.PlaceType.MUSEUM -> "Museos"
                     com.example.app.model.PlaceType.HOTEL -> "Hoteles"
                 }
-                
+
                 originalPlaceName = it.placeName
                 originalDescription = it.description
                 originalSchedules = it.schedules
@@ -120,18 +173,19 @@ fun CreatePlaceForm(
             }
         }
     }
-    
+
     val snackbarHostState = remember { SnackbarHostState() }
-    val scope = rememberCoroutineScope()
-    
+
     val categories = listOf("Restaurantes", "Comidas rápidas", "Cafetería", "Museos", "Hoteles")
     val cities = listOf("Armenia", "Pereira", "Cartagena", "Medellín", "Barranquilla", "Bogotá")
-    
-    val hasChanges = remember(placeName, description, schedules, phone, city, address, category,
-                              originalPlaceName, originalDescription, originalSchedules, 
-                              originalPhone, originalCity, originalAddress, originalCategory) {
+
+    val hasChanges = remember(
+        placeName, description, schedules, phone, city, address, category,
+        originalPlaceName, originalDescription, originalSchedules,
+        originalPhone, originalCity, originalAddress, originalCategory
+    ) {
         if (!isEditMode) return@remember true
-        
+
         val nameChanged = placeName != originalPlaceName
         val descriptionChanged = description != originalDescription
         val phoneChanged = phone != originalPhone
@@ -139,33 +193,34 @@ fun CreatePlaceForm(
         val addressChanged = address != originalAddress
         val categoryChanged = category != originalCategory
         val schedulesChanged = schedules != originalSchedules
-        
+
         nameChanged || descriptionChanged || phoneChanged || cityChanged || addressChanged || categoryChanged || schedulesChanged
     }
-    
+
     val isFormValid = remember(placeName, description, schedules, phone, city, address, category) {
-        val daysOfWeek = listOf("Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo")
-        
-        val valid = placeName.isNotBlank() && description.isNotBlank() && 
-                     schedules.isNotEmpty() && phone.isNotBlank() && 
-                     city.isNotBlank() && address.isNotBlank() && category.isNotBlank() &&
-                     schedules.all { schedule ->
-                         val openDayIndex = daysOfWeek.indexOf(schedule.openDay)
-                         val closeDayIndex = daysOfWeek.indexOf(schedule.closeDay)
-                         
-                         val isScheduleComplete = schedule.openDay.isNotBlank() && 
-                                                 schedule.openTime.isNotBlank() && 
-                                                 schedule.closeDay.isNotBlank() &&
-                                                 schedule.closeTime.isNotBlank()
-                         
-                         val isScheduleValid = if (openDayIndex == closeDayIndex) {
-                             schedule.openTime < schedule.closeTime
-                         } else {
-                             openDayIndex < closeDayIndex
-                         }
-                         
-                         isScheduleComplete && isScheduleValid
-                     }
+        val daysOfWeek =
+            listOf("Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo")
+
+        val valid = placeName.isNotBlank() && description.isNotBlank() &&
+                schedules.isNotEmpty() && phone.isNotBlank() &&
+                city.isNotBlank() && address.isNotBlank() && category.isNotBlank() &&
+                schedules.all { schedule ->
+                    val openDayIndex = daysOfWeek.indexOf(schedule.openDay)
+                    val closeDayIndex = daysOfWeek.indexOf(schedule.closeDay)
+
+                    val isScheduleComplete = schedule.openDay.isNotBlank() &&
+                            schedule.openTime.isNotBlank() &&
+                            schedule.closeDay.isNotBlank() &&
+                            schedule.closeTime.isNotBlank()
+
+                    val isScheduleValid = if (openDayIndex == closeDayIndex) {
+                        schedule.openTime < schedule.closeTime
+                    } else {
+                        openDayIndex < closeDayIndex
+                    }
+
+                    isScheduleComplete && isScheduleValid
+                }
         println("=== VALIDACIÓN FORMULARIO ===")
         println("placeName: '$placeName' -> ${placeName.isNotBlank()}")
         println("description: '$description' -> ${description.isNotBlank()}")
@@ -177,10 +232,10 @@ fun CreatePlaceForm(
         schedules.forEachIndexed { index, schedule ->
             val openDayIndex = daysOfWeek.indexOf(schedule.openDay)
             val closeDayIndex = daysOfWeek.indexOf(schedule.closeDay)
-            val isScheduleComplete = schedule.openDay.isNotBlank() && 
-                                     schedule.openTime.isNotBlank() && 
-                                     schedule.closeDay.isNotBlank() &&
-                                     schedule.closeTime.isNotBlank()
+            val isScheduleComplete = schedule.openDay.isNotBlank() &&
+                    schedule.openTime.isNotBlank() &&
+                    schedule.closeDay.isNotBlank() &&
+                    schedule.closeTime.isNotBlank()
             val isScheduleValid = if (openDayIndex == closeDayIndex) {
                 schedule.openTime < schedule.closeTime
             } else {
@@ -230,7 +285,7 @@ fun CreatePlaceForm(
                     }
                 }
             )
-            
+
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -239,7 +294,7 @@ fun CreatePlaceForm(
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 Spacer(Modifier.height(8.dp))
-                
+
                 OutlinedTextField(
                     value = placeName,
                     onValueChange = { placeName = it },
@@ -266,7 +321,7 @@ fun CreatePlaceForm(
                         }
                     } else null
                 )
-                
+
                 OutlinedTextField(
                     value = description,
                     onValueChange = { description = it },
@@ -277,7 +332,9 @@ fun CreatePlaceForm(
                     shape = RoundedCornerShape(12.dp),
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = if (isEditingDescription) OrangeDeep else Orange,
-                        unfocusedBorderColor = if (isEditingDescription) OrangeDeep else Orange.copy(alpha = 0.6f)
+                        unfocusedBorderColor = if (isEditingDescription) OrangeDeep else Orange.copy(
+                            alpha = 0.6f
+                        )
                     ),
                     enabled = isEditingDescription || !isEditMode,
                     maxLines = 4,
@@ -296,12 +353,12 @@ fun CreatePlaceForm(
                         }
                     } else null
                 )
-                
+
                 ScheduleSection(
                     schedules = schedules,
                     onSchedulesChange = { schedules = it }
                 )
-                
+
                 OutlinedTextField(
                     value = phone,
                     onValueChange = { phone = it },
@@ -328,7 +385,7 @@ fun CreatePlaceForm(
                         }
                     } else null
                 )
-                
+
                 DropdownMenu(
                     options = cities,
                     value = city,
@@ -351,7 +408,7 @@ fun CreatePlaceForm(
                         }
                     } else null
                 )
-                
+
                 OutlinedTextField(
                     value = address,
                     onValueChange = { address = it },
@@ -360,7 +417,9 @@ fun CreatePlaceForm(
                     shape = RoundedCornerShape(12.dp),
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = if (isEditingAddress) OrangeDeep else Orange,
-                        unfocusedBorderColor = if (isEditingAddress) OrangeDeep else Orange.copy(alpha = 0.6f)
+                        unfocusedBorderColor = if (isEditingAddress) OrangeDeep else Orange.copy(
+                            alpha = 0.6f
+                        )
                     ),
                     enabled = isEditingAddress || !isEditMode,
                     trailingIcon = if (isEditMode) {
@@ -378,8 +437,20 @@ fun CreatePlaceForm(
                         }
                     } else null
                 )
-                
-                Column {
+
+                Column(
+                    modifier = Modifier.clickable {
+                        val permissionCheckResult = askPermission(context)
+
+                        if (permissionCheckResult == PackageManager.PERMISSION_GRANTED) {
+                            fileLauncher.launch("image/*")
+                        } else {
+                            askPermission(context)
+                        }
+                    }
+
+                ) {
+
                     Row(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
@@ -406,7 +477,10 @@ fun CreatePlaceForm(
                         colors = CardDefaults.cardColors(
                             containerColor = Color.Transparent
                         ),
-                        border = androidx.compose.foundation.BorderStroke(1.dp, Orange.copy(alpha = 0.6f))
+                        border = androidx.compose.foundation.BorderStroke(
+                            1.dp,
+                            Orange.copy(alpha = 0.6f)
+                        )
                     ) {
                         Row(
                             modifier = Modifier
@@ -430,7 +504,7 @@ fun CreatePlaceForm(
                         }
                     }
                 }
-                
+
                 Column {
                     Row(
                         verticalAlignment = Alignment.CenterVertically
@@ -459,7 +533,10 @@ fun CreatePlaceForm(
                         colors = CardDefaults.cardColors(
                             containerColor = Color.Transparent
                         ),
-                        border = androidx.compose.foundation.BorderStroke(1.dp, Orange.copy(alpha = 0.6f))
+                        border = androidx.compose.foundation.BorderStroke(
+                            1.dp,
+                            Orange.copy(alpha = 0.6f)
+                        )
                     ) {
                         Column(
                             modifier = Modifier
@@ -484,7 +561,7 @@ fun CreatePlaceForm(
                         }
                     }
                 }
-                
+
                 DropdownMenu(
                     options = categories,
                     value = category,
@@ -507,9 +584,9 @@ fun CreatePlaceForm(
                         }
                     } else null
                 )
-                
+
                 Spacer(Modifier.height(24.dp))
-                
+
                 Button(
                     onClick = {
                         val placeType = when (category) {
@@ -520,17 +597,22 @@ fun CreatePlaceForm(
                             "Hoteles" -> com.example.app.model.PlaceType.HOTEL
                             else -> com.example.app.model.PlaceType.RESTAURANT
                         }
-                        
+
                         val location = when (city) {
                             "Armenia" -> com.example.app.model.Location("loc1", 4.5339, -75.6811)
                             "Pereira" -> com.example.app.model.Location("loc2", 4.8133, -75.6961)
                             "Cartagena" -> com.example.app.model.Location("loc3", 10.3910, -75.4794)
                             "Medellín" -> com.example.app.model.Location("loc4", 6.2476, -75.5658)
-                            "Barranquilla" -> com.example.app.model.Location("loc5", 10.9639, -74.7964)
+                            "Barranquilla" -> com.example.app.model.Location(
+                                "loc5",
+                                10.9639,
+                                -74.7964
+                            )
+
                             "Bogotá" -> com.example.app.model.Location("loc6", 4.7110, -74.0721)
                             else -> com.example.app.model.Location("loc1", 4.5339, -75.6811)
                         }
-                        
+
                         if (isEditMode && placeId != null) {
                             val existingPlace = placesViewModel.findByPlaceId(placeId)
                             existingPlace?.let { place ->
@@ -550,19 +632,19 @@ fun CreatePlaceForm(
                                 onBack()
                             }
                         } else {
-                                   val newPlace = com.example.app.model.Place(
-                                       id = java.util.UUID.randomUUID().toString(),
-                                       images = listOf("place"),
-                                       placeName = placeName,
-                                       description = description,
-                                       phones = listOf(phone),
-                                       type = placeType,
-                                       schedules = schedules,
-                                       location = location,
-                                       address = address,
-                                       createBy = userId,
-                                       status = PlaceStatus.PENDING
-                                   )
+                            val newPlace = com.example.app.model.Place(
+                                id = java.util.UUID.randomUUID().toString(),
+                                images = listOf("place"),
+                                placeName = placeName,
+                                description = description,
+                                phones = listOf(phone),
+                                type = placeType,
+                                schedules = schedules,
+                                location = location,
+                                address = address,
+                                createBy = userId,
+                                status = PlaceStatus.PENDING
+                            )
                             placesViewModel.create(newPlace)
                             scope.launch {
                                 snackbarHostState.showSnackbar("Lugar creado exitosamente")
@@ -593,11 +675,11 @@ fun CreatePlaceForm(
                         fontFamily = MontserratFamily
                     )
                 }
-                
+
                 Spacer(Modifier.height(24.dp))
             }
         }
-        
+
         // Snackbar
         Box(
             modifier = Modifier.fillMaxSize()
@@ -618,6 +700,20 @@ fun CreatePlaceForm(
     }
 }
 
+private fun askPermission(context: Context): Int{
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.READ_MEDIA_IMAGES
+        )
+    } else {
+        ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.READ_EXTERNAL_STORAGE
+        )
+    }
+}
+
 @Preview(showBackground = true)
 @Composable
 private fun CreatePlaceFormPreview() {
@@ -625,7 +721,8 @@ private fun CreatePlaceFormPreview() {
         CreatePlaceForm(
             userId = "1",
             placesViewModel = PlacesViewModel(),
-            usersViewModel = UsersViewModel()
+            usersViewModel = UsersViewModel(),
+            context = LocalContext.current
         )
     }
 }

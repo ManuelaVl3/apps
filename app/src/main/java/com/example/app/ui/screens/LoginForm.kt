@@ -1,5 +1,10 @@
 package com.example.app.ui.screens
 
+import android.content.Context
+import android.net.Uri
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -15,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -23,6 +29,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.cloudinary.Cloudinary
+import com.cloudinary.utils.ObjectUtils
 import com.example.app.R
 import com.example.app.model.Role
 import com.example.app.ui.theme.ErrorColor
@@ -32,6 +40,7 @@ import com.example.app.ui.theme.Peach
 import com.example.app.ui.components.InputText
 import com.example.app.ui.components.OperationResultHandler
 import com.example.app.viewmodel.UsersViewModel
+import kotlinx.coroutines.Dispatchers
 
 @Composable
 fun LoginForm(
@@ -42,8 +51,8 @@ fun LoginForm(
 ) {
     val peachBorder = Color(0xFFFFCCBC)
 
-    var email by rememberSaveable { mutableStateOf("moderador@email.com") }
-    var password by rememberSaveable { mutableStateOf("0987654321!") }
+    var email by rememberSaveable { mutableStateOf("manue@email.com") }
+    var password by rememberSaveable { mutableStateOf("123456789*") }
     var passwordVisible by rememberSaveable { mutableStateOf(false) }
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -51,18 +60,18 @@ fun LoginForm(
 
     val usersViewModel: UsersViewModel = remember { UsersViewModel() }
     val userResult by usersViewModel.userResult.collectAsState()
-    
+
     fun isValidEmail(email: String): Boolean {
         val emailPattern = android.util.Patterns.EMAIL_ADDRESS
         return emailPattern.matcher(email).matches()
     }
-    
+
     fun isValidPassword(password: String): Boolean {
         if (password.length < 10) return false
         val specialCharRegex = "[!@#$%^&*(),.?\":{}|<>]".toRegex()
         return specialCharRegex.containsMatchIn(password)
     }
-    
+
     val isEmailValid = email.isNotBlank() && isValidEmail(email)
     val isPasswordValid = password.isNotBlank() && isValidPassword(password)
     val isFormValid = isEmailValid && isPasswordValid
@@ -74,129 +83,134 @@ fun LoginForm(
         Box(
             modifier = Modifier.fillMaxSize()
         ) {
-        BackgroundBubbles()
-        
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            Image(
-                painter = painterResource(id = R.drawable.logo),
-                contentDescription = stringResource(R.string.logo_description),
+            BackgroundBubbles()
+
+            Column(
                 modifier = Modifier
-                    .size(110.dp),
-                contentScale = ContentScale.Fit
-            )
-
-            Spacer(Modifier.height(30.dp))
-
-            Text(
-                text = stringResource(R.string.welcome),
-                fontSize = 28.sp,
-                fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.onBackground,
-                textAlign = TextAlign.Center
-            )
-
-            Spacer(Modifier.height(50.dp))
-
-            InputText(
-                value = email,
-                onValueChange = { email = it },
-                label = stringResource(R.string.email),
-                supportingText = stringResource(R.string.invalid_email),
-                onValidate = { email -> isValidEmail(email) }
-            )
-
-            Spacer(Modifier.height(16.dp))
-
-            InputText(
-                value = password,
-                onValueChange = { password = it },
-                label = stringResource(R.string.password),
-                supportingText = stringResource(R.string.password_invalid),
-                onValidate = { password -> isValidPassword(password) },
-                isPassword = true,
-                passwordVisible = passwordVisible,
-                onPasswordVisibilityToggle = { passwordVisible = !passwordVisible }
-            )
-
-            Spacer(Modifier.height(50.dp))
-
-            Button(
-                onClick = {
-                    usersViewModel.login(email, password)
-                },
-                enabled = isFormValid,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(52.dp),
-                shape = RoundedCornerShape(15.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = if (isFormValid) OrangeDeep else peachBorder,
-                    contentColor = Color.White,
-                    disabledContainerColor = peachBorder,
-                    disabledContentColor = Color.White
-                )
+                    .fillMaxSize()
+                    .padding(horizontal = 24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
             ) {
-                Text(stringResource(R.string.login), fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
+                Image(
+                    painter = painterResource(id = R.drawable.logo),
+                    contentDescription = stringResource(R.string.logo_description),
+                    modifier = Modifier
+                        .size(110.dp),
+                    contentScale = ContentScale.Fit
+                )
+
+                Spacer(Modifier.height(30.dp))
+
+                Text(
+                    text = stringResource(R.string.welcome),
+                    fontSize = 28.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onBackground,
+                    textAlign = TextAlign.Center
+                )
+
+                Spacer(Modifier.height(50.dp))
+
+                InputText(
+                    value = email,
+                    onValueChange = { email = it },
+                    label = stringResource(R.string.email),
+                    supportingText = stringResource(R.string.invalid_email),
+                    onValidate = { email -> isValidEmail(email) }
+                )
+
+                Spacer(Modifier.height(16.dp))
+
+                InputText(
+                    value = password,
+                    onValueChange = { password = it },
+                    label = stringResource(R.string.password),
+                    supportingText = stringResource(R.string.password_invalid),
+                    onValidate = { password -> isValidPassword(password) },
+                    isPassword = true,
+                    passwordVisible = passwordVisible,
+                    onPasswordVisibilityToggle = { passwordVisible = !passwordVisible }
+                )
+
+                Spacer(Modifier.height(50.dp))
+
+                Button(
+                    onClick = {
+                        usersViewModel.login(email, password)
+                    },
+                    enabled = isFormValid,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(52.dp),
+                    shape = RoundedCornerShape(15.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = if (isFormValid) OrangeDeep else peachBorder,
+                        contentColor = Color.White,
+                        disabledContainerColor = peachBorder,
+                        disabledContentColor = Color.White
+                    )
+                ) {
+                    Text(
+                        stringResource(R.string.login),
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
+
+                Spacer(Modifier.height(50.dp))
+
+                OperationResultHandler(
+                    requestResult = userResult,
+                    onSuccess = {
+                        val userLogged = usersViewModel.userLogged.value!!
+                        when (userLogged.role) {
+                            Role.USER -> onLoginSuccess(userLogged.userId)
+                            Role.ADMIN -> onAdminLoginSuccess(userLogged.userId)
+                        }
+                    },
+                    onFailure = {
+                        usersViewModel.resetOperationResult()
+                    }
+                )
+
+                Spacer(Modifier.height(30.dp))
+
+                Text(
+                    text = stringResource(R.string.login_register_link),
+                    color = MaterialTheme.colorScheme.onBackground,
+                    modifier = Modifier.clickable { onRegister() }
+                )
+
+                Spacer(Modifier.height(16.dp))
+
+                Text(
+                    text = stringResource(R.string.login_forgot_password),
+                    color = MaterialTheme.colorScheme.onBackground,
+                    modifier = Modifier.clickable { onForgotPassword() }
+                )
+
+                Spacer(Modifier.height(16.dp))
+
             }
 
-            Spacer(Modifier.height(50.dp))
-
-            OperationResultHandler(
-                requestResult = userResult,
-                onSuccess = {
-                    val userLogged = usersViewModel.userLogged.value!!
-                    when (userLogged.role) {
-                        Role.USER -> onLoginSuccess(userLogged.userId)
-                        Role.ADMIN -> onAdminLoginSuccess(userLogged.userId)
-                    }
-                },
-                onFailure = {
-                    usersViewModel.resetOperationResult()
+            SnackbarHost(
+                hostState = snackbarHostState,
+                modifier = Modifier.align(Alignment.BottomCenter),
+                snackbar = { snackbarData ->
+                    val isError = snackbarData.visuals.message == errorMessage
+                    Snackbar(
+                        snackbarData = snackbarData,
+                        containerColor = if (isError) ErrorColor else Orange,
+                        contentColor = Color.White,
+                        actionColor = Color.White
+                    )
                 }
             )
-
-            Spacer(Modifier.height(30.dp))
-
-            Text(
-                text = stringResource(R.string.login_register_link),
-                color = MaterialTheme.colorScheme.onBackground,
-                modifier = Modifier.clickable { onRegister() }
-            )
-
-            Spacer(Modifier.height(16.dp))
-
-            Text(
-                text = stringResource(R.string.login_forgot_password),
-                color = MaterialTheme.colorScheme.onBackground,
-                modifier = Modifier.clickable { onForgotPassword() }
-            )
-
-            Spacer(Modifier.height(16.dp))
-
-        }
-        
-        SnackbarHost(
-            hostState = snackbarHostState,
-            modifier = Modifier.align(Alignment.BottomCenter),
-            snackbar = { snackbarData ->
-                val isError = snackbarData.visuals.message == errorMessage
-                Snackbar(
-                    snackbarData = snackbarData,
-                    containerColor = if (isError) ErrorColor else Orange,
-                    contentColor = Color.White,
-                    actionColor = Color.White
-                )
-            }
-        )
         }
     }
 }
+
 @Composable
 private fun BackgroundBubbles() {
     Canvas(modifier = Modifier.fillMaxSize()) {
