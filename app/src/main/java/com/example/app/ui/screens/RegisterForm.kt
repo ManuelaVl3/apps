@@ -26,12 +26,17 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import android.util.Log
 import com.example.app.R
+import com.example.app.model.Role
+import com.example.app.model.User
 import com.example.app.ui.components.DropdownMenu
 import com.example.app.ui.theme.ErrorColor
 import com.example.app.ui.theme.Orange
 import com.example.app.ui.theme.OrangeDeep
 import com.example.app.ui.theme.Peach
 import com.example.app.ui.components.InputText
+import com.example.app.ui.components.OperationResultHandler
+import com.example.app.viewmodel.UsersViewModel
+import java.util.UUID
 
 @Composable
 fun RegisterForm(
@@ -39,9 +44,15 @@ fun RegisterForm(
     onLoginClick: () -> Unit = {}
 ) {
     var name by rememberSaveable { mutableStateOf("") }
+    var username by rememberSaveable { mutableStateOf("") }
     var email by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
     var passwordVisible by rememberSaveable { mutableStateOf(false) }
+
+    val userViewModel = UsersViewModel()
+
+    val userResult by userViewModel.userResult.collectAsState()
+
 
     var isCityError by rememberSaveable { mutableStateOf(false) }
     var selectedCity by rememberSaveable { mutableStateOf("") }
@@ -145,6 +156,15 @@ fun RegisterForm(
                 onValidate = { name -> isValidName(name) }
             )
 
+            Spacer(Modifier.height(20.dp))
+
+            InputText(
+                value = username,
+                onValueChange = { username = it },
+                label = stringResource(R.string.username),
+                supportingText = stringResource(R.string.username),
+            )
+
             Spacer(Modifier.height(16.dp))
 
             InputText(
@@ -193,6 +213,18 @@ fun RegisterForm(
                     Log.d("RegisterForm", "Register button clicked")
                     Log.d("RegisterForm", "Capturing city selection now")
                     Log.d("RegisterForm", "Final city value: '$selectedCity'")
+
+                    val user = User(
+                        userId = UUID.randomUUID().toString(),
+                        name = name,
+                        username = username,
+                        email = email,
+                        password = password,
+                        city = selectedCity,
+                        role = Role.USER
+                    )
+
+                    userViewModel.create(user)
                     
                     scope.launch {
                         snackbarHostState.showSnackbar(successMessage)
@@ -212,6 +244,19 @@ fun RegisterForm(
             ) {
                 Text(stringResource(R.string.register), fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
             }
+
+            Spacer(Modifier.height(20.dp))
+
+            OperationResultHandler(
+                requestResult = userResult,
+                onSuccess = {
+                    onLoginClick()
+                    userViewModel.resetOperationResult()
+                },
+                onFailure = {
+                    userViewModel.resetOperationResult()
+                }
+            )
 
             Spacer(Modifier.height(20.dp))
 

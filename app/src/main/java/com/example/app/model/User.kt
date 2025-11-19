@@ -8,5 +8,4 @@ data class User (
     val password: String,
     val city: String,
     val role: Role
-){
-}
+)

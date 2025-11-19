@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.kotlinx.serialization)
+    alias(libs.plugins.google.gms.google.services)
 }
 
 android {
@@ -63,6 +64,7 @@ dependencies {
     implementation(libs.android.navigation.compose)
     implementation(libs.kotlin.serialization.json)
     implementation(libs.coil.compose)
+    implementation(libs.firebase.firestore)
 
     debugImplementation(libs.compose.ui.tooling)
     androidTestImplementation(platform(libs.compose.bom))
