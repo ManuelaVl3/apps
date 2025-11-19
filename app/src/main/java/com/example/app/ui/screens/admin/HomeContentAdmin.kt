@@ -22,28 +22,30 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
 import com.example.app.R
 import com.example.app.model.PlaceStatus
+import com.example.app.ui.screens.admin.nav.RouteTabAdmin
 import com.example.app.ui.theme.MontserratFamily
 import com.example.app.ui.theme.OrangeDeep
 import com.example.app.viewmodel.PlacesViewModel
 
 @Composable
 fun HomeContentAdmin(
-    placesViewModel: PlacesViewModel
+    placesViewModel: PlacesViewModel,
+    navController: NavHostController = rememberNavController()
 ) {
     val allPlaces by placesViewModel.places.collectAsState()
     
-    // Mostrar todos los lugares (pendientes, autorizados y rechazados)
+    // Mostrar solo lugares pendientes y autorizados (excluir rechazados)
+    // Ordenar: primero pendientes, luego autorizados, y dentro de cada grupo los más recientes primero
     val placesToShow = remember(allPlaces) {
-        allPlaces.sortedBy { place ->
-            when (place.status) {
-                PlaceStatus.PENDING -> 0
-                PlaceStatus.AUTHORIZED -> 1
-                PlaceStatus.REJECTED -> 2
-            }
-        }
+        val filtered = allPlaces.filter { it.status == PlaceStatus.PENDING || it.status == PlaceStatus.AUTHORIZED }
+        val pending = filtered.filter { it.status == PlaceStatus.PENDING }.reversed()
+        val authorized = filtered.filter { it.status == PlaceStatus.AUTHORIZED }.reversed()
+        pending + authorized
     }
     
     Surface(
@@ -95,9 +97,7 @@ fun HomeContentAdmin(
                     items(placesToShow) { place ->
                         PlaceCardAdmin(
                             place = place,
-                            onStatusChange = { newStatus ->
-                                placesViewModel.updatePlaceStatus(place.id, newStatus)
-                            }
+                            navController = navController
                         )
                     }
                 }
@@ -109,10 +109,14 @@ fun HomeContentAdmin(
 @Composable
 private fun PlaceCardAdmin(
     place: com.example.app.model.Place,
-    onStatusChange: (PlaceStatus) -> Unit = {}
+    navController: NavHostController
 ) {
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable {
+                navController.navigate(RouteTabAdmin.PlaceDetail(place.id))
+            },
         colors = CardDefaults.cardColors(
             containerColor = com.example.app.ui.theme.CardBackground
         ),
@@ -204,25 +208,27 @@ private fun PlaceCardAdmin(
                     PlaceStatus.REJECTED -> "Rechazado" to Color(0xFF5D4037) // Café/marrón
                 }
                 
+                val isClickable = place.status == PlaceStatus.PENDING
+                
                 Surface(
-                    shape = RoundedCornerShape(8.dp),
+                    shape = RoundedCornerShape(6.dp),
                     color = statusColor,
-                    modifier = Modifier.clickable {
-                        // Cambiar estado al hacer clic
-                        when (place.status) {
-                            PlaceStatus.PENDING -> onStatusChange(PlaceStatus.AUTHORIZED)
-                            PlaceStatus.AUTHORIZED -> onStatusChange(PlaceStatus.REJECTED)
-                            PlaceStatus.REJECTED -> onStatusChange(PlaceStatus.PENDING)
+                    modifier = if (isClickable) {
+                        Modifier.clickable {
+                            // Navegar a la página de autorizar cuando es pendiente
+                            navController.navigate(RouteTabAdmin.Authorize)
                         }
+                    } else {
+                        Modifier // No clickeable para lugares autorizados
                     }
                 ) {
                     Text(
                         text = statusText,
-                        fontSize = 12.sp,
+                        fontSize = 10.sp,
                         fontWeight = FontWeight.Medium,
                         color = Color.White,
                         fontFamily = MontserratFamily,
-                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
                     )
                 }
             }

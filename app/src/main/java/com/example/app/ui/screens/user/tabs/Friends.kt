@@ -14,13 +14,11 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.app.R
 import com.example.app.ui.theme.AppTheme
 import com.example.app.ui.theme.MontserratFamily
 import com.example.app.ui.theme.Orange
@@ -39,19 +37,16 @@ fun Friends(
     val allUsers by usersViewModel.users.collectAsState()
     val friends by friendsViewModel.friends.collectAsState()
     
-    // Obtener lista de amigos del usuario actual
     val userFriends = remember(userId, friends) {
         friendsViewModel.getFriendsByUserId(userId)
     }
     
-    // Obtener los usuarios amigos
     val friendUsers = remember(userFriends, allUsers) {
         userFriends.mapNotNull { friend ->
             allUsers.find { it.userId == friend.friendId }
         }
     }
     
-    // Filtrar usuarios para búsqueda (excluir al usuario actual, sus amigos y moderadores)
     val searchableUsers = remember(searchQuery, allUsers, friendUsers, userId) {
         if (searchQuery.isBlank()) {
             emptyList()
@@ -78,7 +73,6 @@ fun Friends(
             horizontalAlignment = Alignment.Start,
             verticalArrangement = Arrangement.Top
         ) {
-            // Título
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
@@ -103,7 +97,6 @@ fun Friends(
             
             Spacer(Modifier.height(24.dp))
             
-            // Barra de búsqueda
             OutlinedTextField(
                 value = searchQuery,
                 onValueChange = { searchQuery = it },
@@ -148,9 +141,7 @@ fun Friends(
             
             Spacer(Modifier.height(24.dp))
             
-            // Lista de resultados de búsqueda o lista de amigos
             if (searchQuery.isNotEmpty()) {
-                // Mostrar resultados de búsqueda
                 if (searchableUsers.isEmpty()) {
                     Box(
                         modifier = Modifier
@@ -193,7 +184,6 @@ fun Friends(
                     }
                 }
             } else {
-                // Mostrar lista de amigos
                 if (friendUsers.isEmpty()) {
                     Box(
                         modifier = Modifier
@@ -299,7 +289,6 @@ private fun UserCard(
             
             Spacer(Modifier.width(16.dp))
             
-            // Información del usuario
             Column(
                 modifier = Modifier.weight(1f)
             ) {
@@ -330,7 +319,6 @@ private fun UserCard(
                 )
             }
             
-            // Botón de acción
             if (isFriend) {
                 TextButton(
                     onClick = { onRemoveFriend?.invoke() }

@@ -382,17 +382,29 @@ class PlacesViewModel: ViewModel() {
         return earthRadius * c
     }
 
-    fun updatePlaceStatus(placeId: String, status: PlaceStatus): Boolean {
+    fun updatePlaceStatus(placeId: String, status: PlaceStatus, rejectionReason: String? = null): Boolean {
         val currentPlaces = _places.value.toMutableList()
         val placeIndex = currentPlaces.indexOfFirst { it.id == placeId }
         
         if (placeIndex != -1) {
             val existingPlace = currentPlaces[placeIndex]
-            currentPlaces[placeIndex] = existingPlace.copy(status = status)
+            // Mover el lugar actualizado al final de la lista para que aparezca primero cuando se invierta
+            currentPlaces.removeAt(placeIndex)
+            val updatedPlace = existingPlace.copy(
+                status = status,
+                rejectionReason = if (status == PlaceStatus.REJECTED) rejectionReason else null
+            )
+            currentPlaces.add(updatedPlace)
             _places.value = currentPlaces
             return true
         }
         return false
+    }
+    
+    fun getHistoryPlaces(): List<Place> {
+        return _places.value.filter { 
+            it.status == PlaceStatus.AUTHORIZED || it.status == PlaceStatus.REJECTED 
+        }.reversed() 
     }
 
     fun getPendingPlaces(): List<Place> {

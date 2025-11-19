@@ -77,6 +77,7 @@ fun ContentUser(
                 messagesViewModel = messagesViewModel,
                 favoritesViewModel = favoritesViewModel,
                 userId = user?.userId ?: "1",
+                userRole = user?.role,
                 onBack = { navController.popBackStack() },
                 onEdit = { placeId ->
                     navController.navigate(RouteTab.CreatePlace(placeId))

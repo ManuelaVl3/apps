@@ -12,6 +12,7 @@ data class Place(
     val address: String,
     val createBy: String,
     val rating: Double = (1..5).random().toDouble(),
-    val status: PlaceStatus = PlaceStatus.PENDING
+    val status: PlaceStatus = PlaceStatus.PENDING,
+    val rejectionReason: String? = null
 ) {
 }

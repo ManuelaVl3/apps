@@ -14,4 +14,7 @@ sealed class RouteTabAdmin {
 
     @Serializable
     data object Profile : RouteTabAdmin()
+
+    @Serializable
+    data class PlaceDetail(val placeId: String) : RouteTabAdmin()
 }

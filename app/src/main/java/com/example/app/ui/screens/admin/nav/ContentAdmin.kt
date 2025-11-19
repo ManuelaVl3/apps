@@ -7,11 +7,12 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.toRoute
 import androidx.compose.foundation.layout.PaddingValues
-import com.example.app.ui.screens.EditProfile
 import com.example.app.ui.screens.admin.HistoryAdmin
 import com.example.app.ui.screens.admin.AuthorizeAdmin
 import com.example.app.ui.screens.admin.HomeContentAdmin
+import com.example.app.ui.screens.admin.ProfileAdmin
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Home
@@ -43,21 +44,46 @@ fun ContentAdmin(
         startDestination = RouteTabAdmin.Home
     ) {
         composable<RouteTabAdmin.Home> {
-            HomeContentAdmin(placesViewModel = placesViewModel)
+            HomeContentAdmin(
+                placesViewModel = placesViewModel,
+                navController = navController
+            )
         }
         
         composable<RouteTabAdmin.History> {
-            HistoryAdmin()
+            HistoryAdmin(
+                placesViewModel = placesViewModel,
+                navController = navController
+            )
         }
         
         composable<RouteTabAdmin.Authorize> {
-            AuthorizeAdmin(placesViewModel = placesViewModel)
+            AuthorizeAdmin(
+                placesViewModel = placesViewModel,
+                navController = navController
+            )
+        }
+        
+        composable<RouteTabAdmin.PlaceDetail> { backStackEntry ->
+            val route = backStackEntry.toRoute<RouteTabAdmin.PlaceDetail>()
+            com.example.app.ui.screens.user.tabs.PlaceDetail(
+                placeId = route.placeId,
+                placesViewModel = placesViewModel,
+                messagesViewModel = remember { com.example.app.viewmodel.MessagesViewModel() },
+                favoritesViewModel = remember { com.example.app.viewmodel.FavoritesViewModel() },
+                userId = user?.userId ?: "3",
+                userRole = user?.role,
+                onBack = { navController.popBackStack() },
+                onEdit = { },
+                onDelete = { }
+            )
         }
         
         composable<RouteTabAdmin.Profile> {
-            EditProfile(
+            ProfileAdmin(
                 userName = user?.name ?: "Administrador",
-                userUsername = user?.username ?: "",
+                userUsername = user?.username ?: "moderador",
+                userEmail = user?.email ?: "moderador@email.com",
                 userCity = user?.city ?: "Armenia",
                 onLogout = onLogout
             )

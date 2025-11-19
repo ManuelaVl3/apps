@@ -58,22 +58,21 @@ fun PlaceDetail(
     favoritesViewModel: FavoritesViewModel = remember { FavoritesViewModel() },
     usersViewModel: UsersViewModel = remember { UsersViewModel() },
     userId: String = "1",
+    userRole: com.example.app.model.Role? = null,
     onBack: () -> Unit = {},
     onEdit: (String) -> Unit = {},
     onDelete: () -> Unit = {}
 ) {
     val place = placesViewModel.findByPlaceId(placeId)
     val isOwner = place?.createBy == userId
+    val isAdmin = userRole == com.example.app.model.Role.ADMIN
     
-    // Verificar si el lugar está en favoritos
     val favorites by favoritesViewModel.favorites.collectAsState()
     val isFavorite = remember(placeId, favorites, userId) {
         favoritesViewModel.isFavorite(userId, placeId)
     }
     
-    // Actualizar el estado cuando cambien los favoritos
     LaunchedEffect(placeId, favorites, userId) {
-        // El estado se actualiza automáticamente a través de remember
     }
     var showMoreInfo by remember { mutableStateOf(false) }
     var showCommentDialog by remember { mutableStateOf(false) }
@@ -83,7 +82,6 @@ fun PlaceDetail(
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     
-    // Obtener lista de amigos
     val friends = remember(userId) {
         friendsViewModel.getFriendsByUserId(userId)
     }
@@ -94,7 +92,6 @@ fun PlaceDetail(
         }
     }
     
-    // Obtener strings de recursos
     val favoriteAddedMessage = stringResource(R.string.favorite_added_success)
     val commentPublishedMessage = stringResource(R.string.comment_published_success)
     val completeRatingMessage = stringResource(R.string.complete_rating_comment)
@@ -196,7 +193,6 @@ fun PlaceDetail(
                         }
                     }
                     
-                    // Primera sección: Imagen, Favoritos, Comentarios y Descripción
                     item {
                         Card(
                             modifier = Modifier
@@ -214,7 +210,6 @@ fun PlaceDetail(
                             Column(
                                 modifier = Modifier.padding(16.dp)
                             ) {
-                                // Imagen
                                 AsyncImage(
                                     model = if (place.images.firstOrNull() == "place") {
                                         R.drawable.place
@@ -236,58 +231,59 @@ fun PlaceDetail(
                                     modifier = Modifier.fillMaxWidth(),
                                     horizontalArrangement = Arrangement.spacedBy(16.dp)
                                 ) {
-                                    IconButton(
-                                        onClick = {
-                                            if (isFavorite) {
-                                                favoritesViewModel.removeFavorite(userId, placeId)
-                                            } else {
-                                                favoritesViewModel.addFavorite(userId, placeId)
-                                                scope.launch {
-                                                    snackbarHostState.showSnackbar(
-                                                        message = favoriteAddedMessage,
-                                                        duration = SnackbarDuration.Short
-                                                    )
+                                    if (!isAdmin) {
+                                        IconButton(
+                                            onClick = {
+                                                if (isFavorite) {
+                                                    favoritesViewModel.removeFavorite(userId, placeId)
+                                                } else {
+                                                    favoritesViewModel.addFavorite(userId, placeId)
+                                                    scope.launch {
+                                                        snackbarHostState.showSnackbar(
+                                                            message = favoriteAddedMessage,
+                                                            duration = SnackbarDuration.Short
+                                                        )
+                                                    }
                                                 }
                                             }
+                                        ) {
+                                            Image(
+                                                painter = painterResource(id = R.drawable.favorite_24),
+                                                contentDescription = "Añadir a favoritos",
+                                                colorFilter = ColorFilter.tint(
+                                                    if (isFavorite) OrangeDeep else Color.Gray
+                                                ),
+                                                modifier = Modifier.size(28.dp)
+                                            )
                                         }
-                                    ) {
-                                        Image(
-                                            painter = painterResource(id = R.drawable.favorite_24),
-                                            contentDescription = "Añadir a favoritos",
-                                            colorFilter = ColorFilter.tint(
-                                                if (isFavorite) OrangeDeep else Color.Gray
-                                            ),
-                                            modifier = Modifier.size(28.dp)
-                                        )
+                                        
+                                        IconButton(
+                                            onClick = {
+                                                showCommentDialog = true
+                                            }
+                                        ) {
+                                            Icon(
+                                                imageVector = Icons.Default.Comment,
+                                                contentDescription = "Comentar",
+                                                tint = Color.Gray,
+                                                modifier = Modifier.size(28.dp)
+                                            )
+                                        }
+                                        
+                                        IconButton(
+                                            onClick = {
+                                                showShareDialog = true
+                                            }
+                                        ) {
+                                            Image(
+                                                painter = painterResource(id = R.drawable.send_24),
+                                                contentDescription = "Compartir lugar",
+                                                colorFilter = ColorFilter.tint(Color.Gray),
+                                                modifier = Modifier.size(28.dp)
+                                            )
+                                        }
                                     }
                                     
-                                    IconButton(
-                                        onClick = {
-                                            showCommentDialog = true
-                                        }
-                                    ) {
-                                        Icon(
-                                            imageVector = Icons.Default.Comment,
-                                            contentDescription = "Comentar",
-                                            tint = Color.Gray,
-                                            modifier = Modifier.size(28.dp)
-                                        )
-                                    }
-                                    
-                                    IconButton(
-                                        onClick = {
-                                            showShareDialog = true
-                                        }
-                                    ) {
-                                        Image(
-                                            painter = painterResource(id = R.drawable.send_24),
-                                            contentDescription = "Compartir lugar",
-                                            colorFilter = ColorFilter.tint(Color.Gray),
-                                            modifier = Modifier.size(28.dp)
-                                        )
-                                    }
-                                    
-                                    // Iconos de editar y borrar solo para el propietario
                                     if (isOwner) {
                                         IconButton(
                                             onClick = {
@@ -326,7 +322,6 @@ fun PlaceDetail(
                                 
                                 Spacer(Modifier.height(12.dp))
                                 
-                                // Descripción
                                 Text(
                                     text = "Descripción",
                                     fontSize = 18.sp,
@@ -345,7 +340,6 @@ fun PlaceDetail(
                         }
                     }
                     
-                    // Botón "Ver más"
                     item {
                         TextButton(
                             onClick = { showMoreInfo = !showMoreInfo },
@@ -361,7 +355,6 @@ fun PlaceDetail(
                         }
                     }
                     
-                    // Información adicional (Dirección, Contacto, Horarios)
                     if (showMoreInfo) {
                         item {
                             Card(
@@ -381,7 +374,6 @@ fun PlaceDetail(
                                     modifier = Modifier.padding(16.dp),
                                     verticalArrangement = Arrangement.spacedBy(16.dp)
                                 ) {
-                                    // Dirección
                                     Row(
                                         modifier = Modifier.fillMaxWidth(),
                                         verticalAlignment = Alignment.CenterVertically
@@ -406,7 +398,6 @@ fun PlaceDetail(
                                         thickness = 1.dp
                                     )
                                     
-                                    // Contacto
                                     Column {
                                 Text(
                                     text = "Contacto",
@@ -443,7 +434,6 @@ fun PlaceDetail(
                                         thickness = 1.dp
                                     )
                     
-                    // Horarios
                                     Column {
                                 Text(
                                     text = "Horarios",
@@ -548,7 +538,6 @@ fun PlaceDetail(
         }
         }
         
-        // Diálogo de comentario
         if (showCommentDialog) {
             AlertDialog(
                 onDismissRequest = { 
@@ -588,7 +577,6 @@ fun PlaceDetail(
                         modifier = Modifier.fillMaxWidth(),
                         verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
-                        // Calificación con estrellas
                         Text(
                             text = "Calificación",
                             fontSize = 16.sp,
@@ -618,7 +606,6 @@ fun PlaceDetail(
                             }
                         }
                         
-                        // Campo de texto para el comentario
                         OutlinedTextField(
                             value = commentText,
                             onValueChange = { commentText = it },
@@ -649,7 +636,6 @@ fun PlaceDetail(
                     Button(
                         onClick = {
                             if (commentText.isNotBlank() && selectedRating > 0) {
-                                // Crear la reseña
                                 val newReview = com.example.app.model.Review(
                                     id = java.util.UUID.randomUUID().toString(),
                                     userId = "1", // TODO: Obtener del usuario actual
@@ -710,7 +696,6 @@ fun PlaceDetail(
             )
         }
         
-        // Diálogo para compartir con amigos
         if (showShareDialog && place != null) {
            SharePlaceWithFriendDialog(
                place = place,

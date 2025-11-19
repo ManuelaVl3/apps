@@ -38,8 +38,8 @@ fun LoginForm(
 ) {
     val peachBorder = Color(0xFFFFCCBC)
 
-    var email by rememberSaveable { mutableStateOf("manuela@email.com") }
-    var password by rememberSaveable { mutableStateOf("1234567890*") }
+    var email by rememberSaveable { mutableStateOf("moderador@email.com") }
+    var password by rememberSaveable { mutableStateOf("0987654321!") }
     var passwordVisible by rememberSaveable { mutableStateOf(false) }
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
@@ -124,15 +124,12 @@ fun LoginForm(
                 onClick = {
                     scope.launch {
                         if(email == "manuela@email.com" && password == "1234567890*"){
-                            //snackbarHostState.showSnackbar(successMessage)
                             delay(500)
                             onLoginSuccess("1")
-                        }else if(email == "moderador@mod.com" && password == "0987654321!"){
-                            //snackbarHostState.showSnackbar(successMessage)
+                        }else if((email == "moderador@mod.com" || email == "moderador@email.com") && password == "0987654321!"){
                             delay(500)
                             onAdminLoginSuccess("3")
                         }else if(email == "pascal@email.com" && password == "1234567890)"){
-                            //snackbarHostState.showSnackbar(successMessage)
                             delay(500)
                             onLoginSuccess("2")
                         }else{

@@ -100,7 +100,6 @@ fun Places(
             }
         }
         
-        // Botón flotante
         FloatingActionButton(
             onClick = onCreatePlace,
             modifier = Modifier
@@ -129,7 +128,7 @@ fun PlaceCard(
         onClick = onClick,
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         colors = CardDefaults.cardColors(
-            containerColor = com.example.app.ui.theme.CardBackground // Fondo para cards
+            containerColor = com.example.app.ui.theme.CardBackground
         ),
         shape = RoundedCornerShape(12.dp)
     ) {
@@ -137,24 +136,22 @@ fun PlaceCard(
             modifier = Modifier.padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Imagen a la izquierda
             AsyncImage(
                 model = if (place.images.firstOrNull() == "place") {
-                    R.drawable.place // Usar imagen local si es "place"
+                    R.drawable.place
                 } else {
-                    place.images.firstOrNull() // Usar URL si existe
+                    place.images.firstOrNull()
                 },
                 contentDescription = "Imagen del lugar",
                 modifier = Modifier
                     .size(80.dp)
                     .clip(RoundedCornerShape(8.dp)),
                 contentScale = ContentScale.Crop,
-                error = painterResource(id = R.drawable.place) // Imagen de error
+                error = painterResource(id = R.drawable.place)
             )
             
             Spacer(Modifier.width(16.dp))
-            
-            // Información del lugar
+
             Column(
                 modifier = Modifier.weight(1f)
             ) {
@@ -167,16 +164,15 @@ fun PlaceCard(
                 
                 Spacer(Modifier.height(8.dp))
                 
-                // Sistema de estrellas
                 Row {
                     repeat(5) { index ->
                         Icon(
                             imageVector = Icons.Default.Star,
                             contentDescription = null,
                             tint = if (index < place.rating.toInt()) 
-                                Color(0xFFFF5722) // OrangeDeep para estrellas llenas
+                                Color(0xFFFF5722)
                             else 
-                                Color.Gray, // Gris para estrellas vacías
+                                Color.Gray,
                             modifier = Modifier.size(16.dp)
                         )
                     }

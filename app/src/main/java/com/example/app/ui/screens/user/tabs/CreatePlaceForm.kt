@@ -71,7 +71,6 @@ fun CreatePlaceForm(
         mutableStateOf("") 
     }
     
-    // Estados de edición (solo en modo edición)
     var isEditingName by rememberSaveable { mutableStateOf(!isEditMode) }
     var isEditingDescription by rememberSaveable { mutableStateOf(!isEditMode) }
     var isEditingPhone by rememberSaveable { mutableStateOf(!isEditMode) }
@@ -79,7 +78,6 @@ fun CreatePlaceForm(
     var isEditingCategory by rememberSaveable { mutableStateOf(!isEditMode) }
     var isEditingSchedules by rememberSaveable { mutableStateOf(!isEditMode) }
     
-    // Valores originales para comparar cambios (solo en modo edición)
     var originalPlaceName by remember { mutableStateOf("") }
     var originalDescription by remember { mutableStateOf("") }
     var originalSchedules by remember { mutableStateOf(listOf<Schedule>()) }
@@ -88,7 +86,6 @@ fun CreatePlaceForm(
     var originalAddress by remember { mutableStateOf("") }
     var originalCategory by remember { mutableStateOf("") }
     
-    // Cargar datos del lugar cuando se carga para editar
     LaunchedEffect(placeId) {
         placeId?.let { id ->
             val place = placesViewModel.findByPlaceId(id)
@@ -107,7 +104,6 @@ fun CreatePlaceForm(
                     com.example.app.model.PlaceType.HOTEL -> "Hoteles"
                 }
                 
-                // Guardar valores originales
                 originalPlaceName = it.placeName
                 originalDescription = it.description
                 originalSchedules = it.schedules
@@ -131,13 +127,11 @@ fun CreatePlaceForm(
     val categories = listOf("Restaurantes", "Comidas rápidas", "Cafetería", "Museos", "Hoteles")
     val cities = listOf("Armenia", "Pereira", "Cartagena", "Medellín", "Barranquilla", "Bogotá")
     
-    // Verificar si hay cambios en modo edición
-    val hasChanges = remember(placeName, description, schedules, phone, city, address, category, 
+    val hasChanges = remember(placeName, description, schedules, phone, city, address, category,
                               originalPlaceName, originalDescription, originalSchedules, 
                               originalPhone, originalCity, originalAddress, originalCategory) {
-        if (!isEditMode) return@remember true // En modo creación, siempre permitir guardar si el formulario es válido
+        if (!isEditMode) return@remember true
         
-        // Comparar cada campo con su valor original
         val nameChanged = placeName != originalPlaceName
         val descriptionChanged = description != originalDescription
         val phoneChanged = phone != originalPhone
@@ -165,16 +159,13 @@ fun CreatePlaceForm(
                                                  schedule.closeTime.isNotBlank()
                          
                          val isScheduleValid = if (openDayIndex == closeDayIndex) {
-                             // Mismo día: hora de cierre debe ser mayor
                              schedule.openTime < schedule.closeTime
                          } else {
-                             // Días diferentes: día de cierre debe ser posterior
                              openDayIndex < closeDayIndex
                          }
                          
                          isScheduleComplete && isScheduleValid
                      }
-        // Debug logs
         println("=== VALIDACIÓN FORMULARIO ===")
         println("placeName: '$placeName' -> ${placeName.isNotBlank()}")
         println("description: '$description' -> ${description.isNotBlank()}")
@@ -201,7 +192,6 @@ fun CreatePlaceForm(
         println("===========================")
         valid
     }
-                     // Los campos de mapa e imagen son opcionales
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -210,7 +200,6 @@ fun CreatePlaceForm(
         Column(
             modifier = Modifier.fillMaxSize()
         ) {
-            // TopAppBar
             TopAppBar(
                 title = {
                     Row(
@@ -242,7 +231,6 @@ fun CreatePlaceForm(
                 }
             )
             
-            // Contenido scrolleable
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -252,7 +240,6 @@ fun CreatePlaceForm(
             ) {
                 Spacer(Modifier.height(8.dp))
                 
-                // Nombre del lugar
                 OutlinedTextField(
                     value = placeName,
                     onValueChange = { placeName = it },
@@ -280,7 +267,6 @@ fun CreatePlaceForm(
                     } else null
                 )
                 
-                // Descripción
                 OutlinedTextField(
                     value = description,
                     onValueChange = { description = it },
@@ -311,13 +297,11 @@ fun CreatePlaceForm(
                     } else null
                 )
                 
-                // Sección de horarios
                 ScheduleSection(
                     schedules = schedules,
                     onSchedulesChange = { schedules = it }
                 )
                 
-                // Teléfono de contacto
                 OutlinedTextField(
                     value = phone,
                     onValueChange = { phone = it },
@@ -345,7 +329,6 @@ fun CreatePlaceForm(
                     } else null
                 )
                 
-                // Ciudad
                 DropdownMenu(
                     options = cities,
                     value = city,
@@ -369,7 +352,6 @@ fun CreatePlaceForm(
                     } else null
                 )
                 
-                // Dirección
                 OutlinedTextField(
                     value = address,
                     onValueChange = { address = it },
@@ -397,7 +379,6 @@ fun CreatePlaceForm(
                     } else null
                 )
                 
-                // Sección de imagen (opcional)
                 Column {
                     Row(
                         verticalAlignment = Alignment.CenterVertically
@@ -450,7 +431,6 @@ fun CreatePlaceForm(
                     }
                 }
                 
-                // Sección del mapa (opcional)
                 Column {
                     Row(
                         verticalAlignment = Alignment.CenterVertically
@@ -493,7 +473,6 @@ fun CreatePlaceForm(
                                 fontFamily = MontserratFamily
                             )
                             Spacer(Modifier.height(8.dp))
-                            // Imagen del mapa
                             Image(
                                 painter = painterResource(id = R.drawable.map),
                                 contentDescription = "Mapa",
@@ -506,7 +485,6 @@ fun CreatePlaceForm(
                     }
                 }
                 
-                // Categoría
                 DropdownMenu(
                     options = categories,
                     value = category,
@@ -532,7 +510,6 @@ fun CreatePlaceForm(
                 
                 Spacer(Modifier.height(24.dp))
                 
-                // Botón Guardar
                 Button(
                     onClick = {
                         val placeType = when (category) {
@@ -544,7 +521,6 @@ fun CreatePlaceForm(
                             else -> com.example.app.model.PlaceType.RESTAURANT
                         }
                         
-                        // Mapear ciudad a ubicación
                         val location = when (city) {
                             "Armenia" -> com.example.app.model.Location("loc1", 4.5339, -75.6811)
                             "Pereira" -> com.example.app.model.Location("loc2", 4.8133, -75.6961)
@@ -552,11 +528,10 @@ fun CreatePlaceForm(
                             "Medellín" -> com.example.app.model.Location("loc4", 6.2476, -75.5658)
                             "Barranquilla" -> com.example.app.model.Location("loc5", 10.9639, -74.7964)
                             "Bogotá" -> com.example.app.model.Location("loc6", 4.7110, -74.0721)
-                            else -> com.example.app.model.Location("loc1", 4.5339, -75.6811) // Armenia por defecto
+                            else -> com.example.app.model.Location("loc1", 4.5339, -75.6811)
                         }
                         
                         if (isEditMode && placeId != null) {
-                            // Modo edición
                             val existingPlace = placesViewModel.findByPlaceId(placeId)
                             existingPlace?.let { place ->
                                 val updatedPlace = place.copy(
