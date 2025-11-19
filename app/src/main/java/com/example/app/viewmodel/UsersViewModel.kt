@@ -1,5 +1,6 @@
 package com.example.app.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.app.model.Role
@@ -143,6 +144,9 @@ class UsersViewModel : ViewModel() {
             val user = it.toObject(User::class.java)?.apply {
                 this.userId = it.id
             }
+
+            Log.d("FIREBASEEEEEEEEEEE", "loginFirebase: $user")
+
 
             _userLogged.value = user
         }

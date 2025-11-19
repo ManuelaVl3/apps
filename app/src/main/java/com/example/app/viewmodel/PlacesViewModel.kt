@@ -1,19 +1,32 @@
 package com.example.app.viewmodel
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.app.model.Location
 import com.example.app.model.Place
 import com.example.app.model.PlaceStatus
 import com.example.app.model.PlaceType
 import com.example.app.model.Schedule
+import com.example.app.model.User
+import com.example.app.utils.RequestResult
+import com.google.firebase.Firebase
+import com.google.firebase.firestore.firestore
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 
 class PlacesViewModel: ViewModel() {
 
     private val _places = MutableStateFlow(emptyList<Place>())
     val places: StateFlow<List<Place>> = _places.asStateFlow()
+
+
+    private val _userResult = MutableStateFlow<RequestResult?>(null)
+    val userResult: StateFlow<RequestResult?> = _userResult.asStateFlow()
+
+    val db = Firebase.firestore
 
     init{
         loadPlaces()
@@ -311,8 +324,20 @@ class PlacesViewModel: ViewModel() {
         )
     }
 
-    fun create(place: Place){
-        _places.value = _places.value + place
+    fun create(place: Place) {
+        viewModelScope.launch {
+            _userResult.value = RequestResult.Loading
+            _userResult.value = runCatching {
+                createFirebase(place)
+            }.fold(
+                onSuccess = { RequestResult.Success("Place created successfully") },
+                onFailure = { RequestResult.Failure(it.message ?: "Error creating place") }
+            )
+        }
+    }
+
+    private suspend fun createFirebase(place: Place) {
+        db.collection("places").add(place).await()
     }
 
     fun findByPlaceId(placeId: String): Place?{

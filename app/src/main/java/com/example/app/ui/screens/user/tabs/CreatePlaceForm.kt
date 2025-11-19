@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -37,6 +38,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
+import coil.compose.AsyncImage
 import com.cloudinary.Cloudinary
 import com.cloudinary.utils.ObjectUtils
 import com.example.app.R
@@ -444,66 +446,103 @@ fun CreatePlaceForm(
 
                 Column(
                     modifier = Modifier.clickable {
-                        val permissionCheckResult = askPermission(context)
+                        val permissionCheckResult = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                            ContextCompat.checkSelfPermission(
+                                context,
+                                Manifest.permission.READ_MEDIA_IMAGES
+                            )
+                        } else {
+                            ContextCompat.checkSelfPermission(
+                                context,
+                                Manifest.permission.READ_EXTERNAL_STORAGE
+                            )
+                        }
 
                         if (permissionCheckResult == PackageManager.PERMISSION_GRANTED) {
                             fileLauncher.launch("image/*")
                         } else {
-                            askPermission(context)
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                                permissionLauncher.launch(Manifest.permission.READ_MEDIA_IMAGES)
+                            } else {
+                                permissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
+                            }
                         }
                     }
 
                 ) {
 
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = stringResource(R.string.create_add_image),
-                            fontSize = 16.sp,
-                            color = MaterialTheme.colorScheme.onBackground,
-                            fontFamily = MontserratFamily
-                        )
-                        Spacer(Modifier.width(8.dp))
-                        Text(
-                            text = "(Opcional)",
-                            fontSize = 12.sp,
-                            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f),
-                            fontFamily = MontserratFamily
-                        )
-                    }
-                    Spacer(Modifier.height(8.dp))
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(120.dp),
-                        shape = RoundedCornerShape(12.dp),
-                        colors = CardDefaults.cardColors(
-                            containerColor = Color.Transparent
-                        ),
-                        border = androidx.compose.foundation.BorderStroke(
-                            1.dp,
-                            Orange.copy(alpha = 0.6f)
-                        )
-                    ) {
+                    if (image.isEmpty()) {
                         Row(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(16.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.SpaceBetween
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
-                                text = "Toca para agregar imagen",
-                                fontSize = 14.sp,
+                                text = stringResource(R.string.create_add_image),
+                                fontSize = 16.sp,
+                                color = MaterialTheme.colorScheme.onBackground,
+                                fontFamily = MontserratFamily
+                            )
+                            Spacer(Modifier.width(8.dp))
+                            Text(
+                                text = "(Opcional)",
+                                fontSize = 12.sp,
                                 color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f),
                                 fontFamily = MontserratFamily
                             )
-                            Icon(
-                                imageVector = Icons.Default.AddPhotoAlternate,
-                                contentDescription = "Agregar imagen",
-                                tint = Orange.copy(alpha = 0.6f),
-                                modifier = Modifier.size(32.dp)
+                        }
+
+                        Spacer(Modifier.height(8.dp))
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(120.dp),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = CardDefaults.cardColors(
+                                containerColor = Color.Transparent
+                            ),
+                            border = androidx.compose.foundation.BorderStroke(
+                                1.dp,
+                                Orange.copy(alpha = 0.6f)
+                            )
+                        ) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(16.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text(
+                                    text = "Toca para agregar imagen",
+                                    fontSize = 14.sp,
+                                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f),
+                                    fontFamily = MontserratFamily
+                                )
+                                Icon(
+                                    imageVector = Icons.Default.AddPhotoAlternate,
+                                    contentDescription = "Agregar imagen",
+                                    tint = Orange.copy(alpha = 0.6f),
+                                    modifier = Modifier.size(32.dp)
+                                )
+                            }
+                        }
+                    } else {
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(120.dp),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = CardDefaults.cardColors(
+                                containerColor = Color.Transparent
+                            ),
+                            border = androidx.compose.foundation.BorderStroke(
+                                1.dp,
+                                Orange.copy(alpha = 0.6f)
+                            )
+                        ) {
+                            AsyncImage(
+                                modifier = Modifier.width(200.dp),
+                                model = image,
+                                contentDescription = null
                             )
                         }
                     }
@@ -643,7 +682,7 @@ fun CreatePlaceForm(
                         } else {
                             val newPlace = com.example.app.model.Place(
                                 id = java.util.UUID.randomUUID().toString(),
-                                images = listOf("place"),
+                                images = listOf(image),
                                 placeName = placeName,
                                 description = description,
                                 phones = listOf(phone),
@@ -770,20 +809,6 @@ fun CreatePlaceForm(
                 shape = RoundedCornerShape(20.dp)
             )
         }
-    }
-}
-
-private fun askPermission(context: Context): Int{
-    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-        ContextCompat.checkSelfPermission(
-            context,
-            Manifest.permission.READ_MEDIA_IMAGES
-        )
-    } else {
-        ContextCompat.checkSelfPermission(
-            context,
-            Manifest.permission.READ_EXTERNAL_STORAGE
-        )
     }
 }
 
